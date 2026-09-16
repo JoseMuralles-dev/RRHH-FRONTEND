@@ -1,0 +1,46 @@
+.sidebar {
+  width: 240px;
+  min-height: 100vh;
+  background: #1f2937;
+  color: white;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.logo {
+  margin-bottom: 35px;
+}
+
+.logo h2 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.logo span {
+  font-size: 13px;
+  color: #9ca3af;
+}
+
+nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+nav a {
+  text-decoration: none;
+  color: #d1d5db;
+  padding: 10px 12px;
+  border-radius: 6px;
+  transition: 0.2s;
+}
+
+nav a:hover {
+  background: #374151;
+  color: white;
+}
+
+nav a.active {
+  background: #4b5563;
+  color: white;
+}
