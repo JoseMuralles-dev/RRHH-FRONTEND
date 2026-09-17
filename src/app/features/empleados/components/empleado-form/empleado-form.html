@@ -1,0 +1,70 @@
+<section class="page-container">
+  <header class="page-header">
+    <h1>{{ id === null ? 'Crear empleado' : 'Editar empleado' }}</h1>
+    <a routerLink="/empleados">Volver al listado</a>
+  </header>
+  @if (error()) { <p class="error-box" role="alert">{{ error() }}</p> }
+  @if (loading()) {
+    <p role="status">Cargando empleado...</p>
+  } @else if (!loaded()) {
+    <button type="button" (click)="cargarEmpleado()">Reintentar</button>
+  } @else {
+    <form class="card" [formGroup]="form" (ngSubmit)="guardar()">
+      <p class="hint">Los campos con * son obligatorios.</p>
+      <fieldset [disabled]="saving() || !puedeEditar">
+        <legend class="sr-only">Datos del empleado</legend>
+        <div class="form-grid">
+          @for (campo of campos; track campo.key) {
+            <div>
+              <label [for]="campo.key">{{ campo.label }} {{ campo.required ? '*' : '' }}</label>
+              <input [id]="campo.key" [type]="campo.type" [formControlName]="campo.key"
+                [attr.maxlength]="campo.max ?? null" [attr.aria-required]="campo.required"
+                [attr.inputmode]="campo.key === 'sueldoActual' ? 'decimal' : null"
+                [attr.aria-invalid]="!!errorCampo(form.controls[campo.key])"
+                [attr.aria-describedby]="campo.key + '-error'">
+              <span class="field-error" [id]="campo.key + '-error'">{{ errorCampo(form.controls[campo.key]) }}</span>
+            </div>
+          }
+          <div>
+            <label for="idPuesto">ID del puesto *</label>
+            <input id="idPuesto" type="number" min="1" step="1" formControlName="idPuesto" aria-describedby="puesto-ayuda puesto-error">
+            <p id="puesto-ayuda" class="hint">Ingresa el ID de un puesto activo. El catálogo de puestos aún no está disponible.</p>
+            <span id="puesto-error" class="field-error">{{ errorCampo(form.controls.idPuesto) }}</span>
+          </div>
+          <div>
+            <label for="codigoSapEmpleado">Código SAP</label>
+            <input id="codigoSapEmpleado" type="number" step="1" formControlName="codigoSapEmpleado" aria-describedby="sap-error">
+            <span id="sap-error" class="field-error">{{ errorCampo(form.controls.codigoSapEmpleado) }}</span>
+          </div>
+          <div class="wide">
+            <label for="idJefeDirecto">Jefe directo</label>
+            <select id="idJefeDirecto" formControlName="idJefeDirecto" aria-describedby="jefe-error">
+              <option [ngValue]="null">Sin jefe directo</option>
+              @if (jefeNoDisponible()) {
+                <option [ngValue]="form.controls.idJefeDirecto.value">Jefe actual (ID {{ form.controls.idJefeDirecto.value }}) — no disponible en el catálogo</option>
+              }
+              @for (jefe of jefes(); track jefe.idEmpleado) {
+                <option [ngValue]="jefe.idEmpleado">{{ jefe.nombreCompleto }}</option>
+              }
+            </select>
+            <span id="jefe-error" class="field-error">{{ errorCampo(form.controls.idJefeDirecto) }}</span>
+            @if (loadingJefes()) { <p role="status">Cargando jefes disponibles...</p> }
+            @else if (errorJefes()) {
+              <div class="error-box" role="alert">{{ errorJefes() }} <button type="button" (click)="cargarJefes()">Reintentar</button></div>
+            } @else if (!jefes().length) { <p class="hint">No hay otros empleados activos disponibles como jefe.</p> }
+          </div>
+          <div class="wide">
+            <label for="direccion">Dirección</label>
+            <textarea id="direccion" rows="3" formControlName="direccion"></textarea>
+          </div>
+        </div>
+        <div class="actions form-actions">
+          <a routerLink="/empleados">Cancelar</a>
+          <button class="btn-primary" type="submit" [disabled]="saving() || !puedeEditar">
+            {{ saving() ? 'Guardando...' : 'Guardar empleado' }}
+          </button>
+        </div>
+      </fieldset>
+    </form>
+  }
+</section>

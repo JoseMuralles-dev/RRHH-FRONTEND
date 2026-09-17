@@ -1,0 +1,165 @@
+<div class="page-container">
+
+  <div class="page-header">
+
+    <div>
+      <h1>Usuarios</h1>
+
+      <p>
+        Administración de usuarios del sistema
+      </p>
+    </div>
+
+    <button
+      class="btn-primary"
+      routerLink="/usuarios/nuevo"
+    >
+      Nuevo usuario
+    </button>
+
+  </div>
+
+  @if (loading()) {
+
+    <div class="message">
+      Cargando usuarios...
+    </div>
+
+  } @else if (errorMessage()) {
+
+    <div class="error-box">
+      {{ errorMessage() }}
+    </div>
+
+  } @else {
+
+    <div class="table-container">
+
+      <table>
+
+        <thead>
+
+          <tr>
+            <th>ID</th>
+            <th>Empleado</th>
+            <th>Correo</th>
+            <th>Rol</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+
+        </thead>
+
+        <tbody>
+
+          @for (
+            usuario of usuarios();
+            track usuario.idUsuario
+          ) {
+
+            <tr>
+
+              <td>
+                {{ usuario.idUsuario }}
+              </td>
+
+              <td>
+
+                @if (usuario.empleado) {
+
+                  {{ usuario.empleado.primerNombre }}
+                  {{ usuario.empleado.primerApellido }}
+
+                } @else {
+
+                  Sin empleado asociado
+
+                }
+
+              </td>
+
+              <td>
+                {{ usuario.correo }}
+              </td>
+
+              <td>
+
+                {{
+                  usuario.rol?.nombreRol
+                  || usuario.idRol
+                }}
+
+              </td>
+
+              <td>
+
+                <span
+                  class="estado"
+                  [class.activo]="
+                    usuario.estado === 'ACTIVO'
+                  "
+                  [class.inactivo]="
+                    usuario.estado === 'INACTIVO'
+                  "
+                >
+
+                  {{ usuario.estado }}
+
+                </span>
+
+              </td>
+
+              <td class="acciones">
+
+                <button
+                  class="btn-edit"
+                  [routerLink]="[
+                    '/usuarios',
+                    usuario.idUsuario,
+                    'editar'
+                  ]"
+                >
+                  Editar
+                </button>
+
+                <button
+                  class="btn-password"
+                  [routerLink]="[
+                    '/usuarios',
+                    usuario.idUsuario,
+                    'cambiar-password'
+                  ]"
+                >
+                  Contraseña
+                </button>
+
+                @if (
+                  usuario.estado === 'ACTIVO'
+                ) {
+
+                  <button
+                    class="btn-delete"
+                    (click)="
+                      desactivarUsuario(usuario)
+                    "
+                  >
+                    Desactivar
+                  </button>
+
+                }
+
+              </td>
+
+            </tr>
+
+          }
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  }
+
+</div>

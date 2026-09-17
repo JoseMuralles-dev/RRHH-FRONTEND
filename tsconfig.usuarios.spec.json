@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.spec.json",
+  "include": [
+    "src/**/*.d.ts",
+    "src/app/features/usuarios/pages/usuarios-list/usuarios-list.spec.ts",
+    "src/app/features/usuarios/pages/actualizar-usuario/actualizar-usuario.spec.ts",
+    "src/app/features/usuarios/pages/crear-usuario/crear-usuario.spec.ts"
+  ]
+}

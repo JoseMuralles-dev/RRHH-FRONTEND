@@ -4,6 +4,8 @@ import { LoginComponent } from './features/auth/pages/login/login';
 import { Dashboard } from './features/dashboard/pages/dashboard/dashboard';
 
 import { MainLayoutComponent } from './layout/main-layout/main-layout';
+import { CrearUsuario } from './features/usuarios/pages/crear-usuario/crear-usuario';
+import { CambiarPassword } from './features/usuarios/pages/cambiar-password/cambiar-password';
 
 export const routes: Routes = [
 
@@ -27,6 +29,17 @@ export const routes: Routes = [
       {
         path: 'dashboard',
         component: Dashboard
+      },
+      {
+        path: 'empleados',
+        loadChildren: () => import('./features/empleados/empleados.routes')
+          .then(m => m.EMPLEADOS_ROUTES)
+      },
+      {
+        path: 'usuarios',
+        loadChildren: () =>
+          import('./features/usuarios/usuarios.routes')
+            .then(m => m.USUARIOS_ROUTES)
       }
 
     ]

@@ -1,0 +1,167 @@
+<div class="page-container">
+
+  <div class="page-header">
+
+    <div>
+      <h1>Actualizar usuario</h1>
+
+      <p>
+        Modificar información del usuario
+      </p>
+    </div>
+
+    <button
+      class="btn-secondary"
+      routerLink="/usuarios"
+    >
+      Volver
+    </button>
+
+  </div>
+
+  @if (loadingUsuario()) {
+
+    <p>
+      Cargando usuario...
+    </p>
+
+  } @else if (!usuarioLoaded()) {
+    <div class="error-box" role="alert">
+      {{ errorMessage() }}
+      <button type="button" class="btn-secondary" (click)="cargarUsuario()">Reintentar</button>
+    </div>
+  } @else {
+
+    <div class="form-card">
+
+      <form
+        [formGroup]="usuarioForm"
+        (ngSubmit)="actualizarUsuario()"
+      >
+
+        <div class="form-group">
+
+          <label for="idEmpleado">Empleado asociado</label>
+        <select id="idEmpleado" formControlName="idEmpleado" aria-label="Empleado asociado" [attr.aria-busy]="loadingEmpleados()">
+          <option [ngValue]="null">Sin empleado asociado</option>
+          @if (usuarioForm.controls.idEmpleado.value !== null && !empleadoActualDisponible()) {
+            <option [ngValue]="usuarioForm.controls.idEmpleado.value">Empleado actual (ID: {{ usuarioForm.controls.idEmpleado.value }})</option>
+          }
+          @for (empleado of empleados(); track empleado.idEmpleado) {
+            <option [ngValue]="empleado.idEmpleado">{{ empleado.nombreCompleto }} (ID: {{ empleado.idEmpleado }})</option>
+          }
+        </select>
+        @if (loadingEmpleados()) {
+          <p role="status">Cargando empleados...</p>
+        } @else if (empleadosError()) {
+          <div class="error-box" role="alert">
+            {{ empleadosError() }}
+            <button type="button" class="btn-secondary" (click)="cargarEmpleados()">Reintentar</button>
+          </div>
+        } @else if (!empleados().length) {
+          <p role="status">No hay empleados activos disponibles.</p>
+        }
+
+        </div>
+
+        <div class="form-group">
+
+          <label>
+            Rol
+          </label>
+
+          <select formControlName="idRol" aria-label="Rol">
+            <option [ngValue]="null" disabled>Selecciona un rol</option>
+            @for (rol of roles(); track rol.idRol) {
+              <option [ngValue]="rol.idRol">{{ rol.nombreRol || rol.codigoRol || ('Rol ' + rol.idRol) }}</option>
+            }
+          </select>
+          @if (loadingRoles()) {
+            <p role="status">Cargando roles...</p>
+          } @else if (rolesError()) {
+            <div class="error-box" role="alert">
+              {{ rolesError() }}
+              <button type="button" class="btn-secondary" (click)="cargarRoles()">Reintentar</button>
+            </div>
+          } @else if (!roles().length) {
+            <p role="status">No hay roles disponibles para asignar.</p>
+          }
+
+        </div>
+
+        <div class="form-group">
+
+          <label>
+            Correo
+          </label>
+
+          <input
+            type="email"
+            formControlName="correo"
+          >
+
+        </div>
+
+        <div class="form-group">
+
+          <label>
+            Estado
+          </label>
+
+          <select
+            formControlName="isActive"
+          >
+
+            <option [ngValue]="true">
+              Activo
+            </option>
+
+            <option [ngValue]="false">
+              Inactivo
+            </option>
+
+          </select>
+
+        </div>
+
+        @if (errorMessage()) {
+
+          <div class="error-box">
+            {{ errorMessage() }}
+          </div>
+
+        }
+
+        <div class="buttons">
+
+          <button
+            type="button"
+            class="btn-secondary"
+            routerLink="/usuarios"
+          >
+            Cancelar
+          </button>
+
+          <button
+            type="submit"
+            class="btn-primary"
+            [disabled]="loadingEmpleados() || !!empleadosError() || loading() || loadingRoles() || !!rolesError() || !roles().length"
+          >
+
+            @if (loading()) {
+              Guardando...
+            } @else {
+              Guardar cambios
+            }
+
+          </button>
+
+        </div>
+
+      </form>
+
+    </div>
+
+  }
+
+</div>

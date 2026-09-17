@@ -1,0 +1,28 @@
+<section class="page-container">
+  <header class="page-header"><h1>Detalle del empleado</h1><a routerLink="/empleados">Volver al listado</a></header>
+  @if (loading()) { <p role="status">Cargando empleado...</p> }
+  @else if (error()) {
+    <div class="error-box" role="alert">{{ error() }} <button type="button" (click)="cargar()">Reintentar</button></div>
+  } @else if (empleado(); as e) {
+    <article class="card">
+      <header class="page-header">
+        <div><h2>{{ nombre(e) }}</h2><p>Empleado #{{ e.idEmpleado }}</p></div>
+        @if (puedeEditar) { <a class="btn-primary" [routerLink]="['/empleados', e.idEmpleado, 'editar']">Editar empleado</a> }
+      </header>
+      <dl class="form-grid">
+        <div><dt>DPI</dt><dd>{{ e.dpi }}</dd></div>
+        <div><dt>IGSS</dt><dd>{{ e.igss }}</dd></div>
+        <div><dt>Fecha de nacimiento</dt><dd>{{ e.fechaNacimiento }}</dd></div>
+        <div><dt>Fecha de ingreso</dt><dd>{{ e.fechaIngreso }}</dd></div>
+        <div><dt>Sueldo actual</dt><dd>{{ e.sueldoActual }}</dd></div>
+        <div><dt>Código SAP</dt><dd>{{ e.codigoSapEmpleado ?? 'Sin código' }}</dd></div>
+        <div><dt>Puesto</dt><dd>{{ e.puesto?.nombrePuesto || ('ID ' + e.idPuesto) }}</dd></div>
+        <div><dt>Departamento</dt><dd>{{ e.puesto?.departamento?.nombreDepartamento || 'Sin información' }}</dd></div>
+        <div><dt>Jefe directo</dt><dd>{{ e.jefeDirecto ? nombre(e.jefeDirecto) : (e.idJefeDirecto ? 'ID ' + e.idJefeDirecto : 'Sin jefe directo') }}</dd></div>
+        <div><dt>Teléfono</dt><dd>{{ e.telefono || 'Sin teléfono' }}</dd></div>
+        <div class="wide"><dt>Dirección</dt><dd>{{ e.direccion || 'Sin dirección' }}</dd></div>
+        <div class="wide"><dt>Usuario asociado</dt><dd>{{ e.usuario?.correo || 'Sin usuario asociado' }}</dd></div>
+      </dl>
+    </article>
+  }
+</section>

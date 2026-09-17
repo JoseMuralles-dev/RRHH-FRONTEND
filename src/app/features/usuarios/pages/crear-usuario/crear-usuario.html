@@ -1,0 +1,175 @@
+<div class="page-container">
+
+  <div class="page-header">
+
+    <div>
+
+      <h1>Crear usuario</h1>
+
+      <p>
+        Registrar acceso al sistema
+      </p>
+
+    </div>
+
+    <button
+      class="btn-secondary"
+      routerLink="/usuarios"
+    >
+      Volver
+    </button>
+
+  </div>
+
+  <div class="form-card">
+
+    <form
+      [formGroup]="usuarioForm"
+      (ngSubmit)="crearUsuario()"
+    >
+
+      <div class="form-group">
+
+        <label for="idEmpleado">Empleado asociado</label>
+        <select id="idEmpleado" formControlName="idEmpleado" aria-label="Empleado asociado" [attr.aria-busy]="loadingEmpleados()">
+          <option [ngValue]="null" disabled>Selecciona un empleado</option>
+          @for (empleado of empleados(); track empleado.idEmpleado) {
+            <option [ngValue]="empleado.idEmpleado">{{ empleado.nombreCompleto }} (ID: {{ empleado.idEmpleado }})</option>
+          }
+        </select>
+        @if (loadingEmpleados()) {
+          <p role="status">Cargando empleados...</p>
+        } @else if (empleadosError()) {
+          <div class="error-box" role="alert">
+            {{ empleadosError() }}
+            <button type="button" class="btn-secondary" (click)="cargarEmpleados()">Reintentar</button>
+          </div>
+        } @else if (!empleados().length) {
+          <p role="status">No hay empleados activos disponibles.</p>
+        }
+
+        @if (usuarioForm.controls.idEmpleado.touched && usuarioForm.controls.idEmpleado.hasError('required')) {
+          <p class="field-error" role="alert">Selecciona un empleado.</p>
+        }
+
+      </div>
+
+      <div class="form-group">
+
+        <label>
+          Rol
+        </label>
+
+        <select formControlName="idRol" aria-label="Rol">
+            <option [ngValue]="null" disabled>Selecciona un rol</option>
+            @for (rol of roles(); track rol.idRol) {
+              <option [ngValue]="rol.idRol">{{ rol.nombreRol || rol.codigoRol || ('Rol ' + rol.idRol) }}</option>
+            }
+          </select>
+          @if (loadingRoles()) {
+            <p role="status">Cargando roles...</p>
+          } @else if (rolesError()) {
+            <div class="error-box" role="alert">
+              {{ rolesError() }}
+              <button type="button" class="btn-secondary" (click)="cargarRoles()">Reintentar</button>
+            </div>
+          } @else if (!roles().length) {
+            <p role="status">No hay roles disponibles para asignar.</p>
+          }
+
+        @if (usuarioForm.controls.idRol.touched && usuarioForm.controls.idRol.hasError('required')) {
+          <p class="field-error" role="alert">Selecciona un rol.</p>
+        }
+
+      </div>
+
+      <div class="form-group">
+
+        <label>
+          Correo
+        </label>
+
+        <input
+          type="email"
+          formControlName="correo"
+        >
+
+        @if (usuarioForm.controls.correo.touched && usuarioForm.controls.correo.invalid) {
+          <p class="field-error" role="alert">Ingresa un correo válido.</p>
+        }
+
+      </div>
+
+      <div class="form-group">
+
+        <label>
+          Contraseña
+        </label>
+
+        <input
+          type="password"
+          formControlName="password"
+        >
+
+        @if (usuarioForm.controls.password.touched && usuarioForm.controls.password.invalid) {
+          <p class="field-error" role="alert">Ingresa una contraseña de al menos 8 caracteres.</p>
+        }
+
+      </div>
+
+      <div class="form-group">
+
+        <label>
+          Confirmar contraseña
+        </label>
+
+        <input
+          type="password"
+          formControlName="confirmarPassword"
+        >
+
+        @if (usuarioForm.controls.confirmarPassword.touched && usuarioForm.controls.confirmarPassword.hasError('required')) {
+          <p class="field-error" role="alert">Confirma la contraseña.</p>
+        }
+
+      </div>
+
+      @if (errorMessage()) {
+
+        <div class="error-box" role="alert">
+          {{ errorMessage() }}
+        </div>
+
+      }
+
+      <div class="buttons">
+
+        <button
+          type="button"
+          class="btn-secondary"
+          routerLink="/usuarios"
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="submit"
+          class="btn-primary"
+          [disabled]="loadingEmpleados() || !!empleadosError() || loading() || loadingRoles() || !!rolesError() || !roles().length"
+        >
+
+          @if (loading()) {
+            Guardando...
+          } @else {
+            Crear usuario
+          }
+
+        </button>
+
+      </div>
+
+    </form>
+
+  </div>
+
+</div>

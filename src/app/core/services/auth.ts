@@ -59,4 +59,17 @@ export class AuthService {
 
   }
 
+  getNivelJerarquico(): number {
+    try {
+      const segment = this.getToken()?.split('.')[1];
+      if (!segment) return 0;
+      const base64 = segment.replace(/-/g, '+').replace(/_/g, '/');
+      const payload = JSON.parse(atob(base64.padEnd(Math.ceil(base64.length / 4) * 4, '=')));
+      if (typeof payload.exp === 'number' && payload.exp * 1000 <= Date.now()) return 0;
+      return typeof payload.nivelJerarquico === 'number' ? payload.nivelJerarquico : 0;
+    } catch {
+      return 0;
+    }
+  }
+
 }

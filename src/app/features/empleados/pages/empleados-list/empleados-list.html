@@ -1,0 +1,47 @@
+<section class="page-container">
+  <header class="page-header">
+    <div><h1>Empleados</h1><p>Consulta y administración de empleados activos</p></div>
+    @if (puedeEditar) { <a class="btn-primary" routerLink="/empleados/nuevo">Nuevo empleado</a> }
+  </header>
+  <div class="card">
+    <label for="buscar-empleado">Buscar por nombre, apellido o DPI</label>
+    <div class="search">
+      <input id="buscar-empleado" type="search" [formControl]="busqueda" placeholder="Escribe para buscar">
+      @if (busqueda.value) { <button type="button" (click)="busqueda.setValue('')">Limpiar</button> }
+    </div>
+    @if (busqueda.value.trim()) { <p class="hint">La búsqueda muestra hasta 20 coincidencias.</p> }
+  </div>
+  @if (aviso()) { <p class="success" role="status">{{ aviso() }}</p> }
+  @if (error()) {
+    <div class="error-box" role="alert">{{ error() }} <button type="button" (click)="reintentar()">Reintentar</button></div>
+  } @else if (loading()) {
+    <p role="status">Cargando empleados...</p>
+  } @else if (!empleados().length) {
+    <p role="status">{{ busqueda.value.trim() ? 'No hay resultados para esta búsqueda.' : 'No hay empleados activos para mostrar.' }}</p>
+  } @else {
+    <div class="table-container">
+      <table>
+        <thead><tr><th>Nombre completo</th><th>DPI</th><th>Puesto</th><th>Departamento</th><th>Teléfono</th><th>Acciones</th></tr></thead>
+        <tbody>
+          @for (empleado of empleados(); track empleado.idEmpleado) {
+            <tr>
+              <td>{{ nombre(empleado) }}</td><td>{{ empleado.dpi }}</td>
+              <td>{{ empleado.puesto?.nombrePuesto || 'Sin información' }}</td>
+              <td>{{ empleado.puesto?.departamento?.nombreDepartamento || 'Sin información' }}</td>
+              <td>{{ empleado.telefono || 'Sin teléfono' }}</td>
+              <td><div class="actions">
+                <a [routerLink]="['/empleados', empleado.idEmpleado]">Detalle</a>
+                @if (puedeEditar) {
+                  <a [routerLink]="['/empleados', empleado.idEmpleado, 'editar']">Editar</a>
+                  <button type="button" class="danger" [disabled]="desactivando() !== null" (click)="desactivar(empleado)">
+                    {{ desactivando() === empleado.idEmpleado ? 'Desactivando...' : 'Desactivar' }}
+                  </button>
+                }
+              </div></td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>
