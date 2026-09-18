@@ -1,0 +1,13 @@
+<section class="page-container">
+  <header class="page-header"><div><h1>Nueva solicitud</h1><p>Se enviará a tu jefe directo. Si es de RRHH, su aprobación será suficiente; de lo contrario, pasará después a RRHH.</p></div><a routerLink="/solicitudes">Volver</a></header>
+  @if (!tieneEmpleado) { <p class="error-box" role="alert">Tu usuario no tiene un empleado asociado. Solicita a administración que lo vincule para poder crear solicitudes.</p> }
+  @else if (loading()) { <p role="status">Cargando tipos de incidencia...</p> }
+  @else if (errorTipos()) { <div class="error-box" role="alert">{{ errorTipos() }} <button type="button" (click)="cargarTipos()">Reintentar</button></div> }
+  @else if (!tipos().length) { <p role="status">No hay tipos de incidencia activos. Solicita su configuración a administración.</p> }
+  @else {
+    <div class="card">
+      @if (error()) { <p class="error-box" role="alert">{{ error() }}</p> }
+      <app-solicitud-form [tipos]="tipos()" [saving]="saving()" (enviar)="guardar($event)" />
+    </div>
+  }
+</section>

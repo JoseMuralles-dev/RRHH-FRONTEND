@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-
 import { Observable } from 'rxjs';
 import { API } from '../../../core/config/apis';
 
@@ -36,7 +35,7 @@ export class UsuarioService {
   ): Observable<Usuario> {
 
     return this.http.get<Usuario>(
-      `${this.apiUrl}/${id}`
+      `${API.baseUrl}${API.usuarios.byId(id)}`
     );
 
   }
@@ -58,7 +57,7 @@ export class UsuarioService {
   ): Observable<Usuario> {
 
     return this.http.patch<Usuario>(
-      `${this.apiUrl}/${id}`,
+      `${API.baseUrl}${API.usuarios.byId(id)}`,
       data
     );
 
@@ -70,7 +69,7 @@ export class UsuarioService {
   ): Observable<void> {
 
     return this.http.patch<void>(
-      `${this.apiUrl}/${id}/password`,
+      `${API.baseUrl}${API.usuarios.cambiarPassword(id)}`,
       data
     );
 

@@ -1,0 +1,32 @@
+<form [formGroup]="form" (ngSubmit)="guardar()">
+  <fieldset [disabled]="saving()">
+    <legend class="sr-only">Datos de la solicitud</legend>
+    <div class="form-group">
+      <label for="tipo">Tipo de incidencia *</label>
+      <select id="tipo" formControlName="idTipoIncidencia">
+        <option [ngValue]="null" disabled>Selecciona un tipo</option>
+        @for (tipo of tipos(); track tipo.idTipoIncidencia) { <option [ngValue]="tipo.idTipoIncidencia">{{ tipo.nombre }}</option> }
+      </select>
+      @if (form.controls.idTipoIncidencia.touched && form.controls.idTipoIncidencia.invalid) { <p class="field-error">Selecciona un tipo de incidencia.</p> }
+    </div>
+    @if (requierePeriodo()) {
+    <div class="grid">
+      <div class="form-group"><label for="inicio">Fecha inicial *</label><input id="inicio" type="date" formControlName="fechaInicio">
+        @if (form.controls.fechaInicio.touched && !form.controls.fechaInicio.value) { <p class="field-error">Indica la fecha inicial.</p> }
+      </div>
+      <div class="form-group"><label for="fin">Fecha final *</label><input id="fin" type="date" formControlName="fechaFin" [min]="form.controls.fechaInicio.value">
+        @if (form.controls.fechaFin.touched && !form.controls.fechaFin.value) { <p class="field-error">Indica la fecha final.</p> }
+      </div>
+    </div>
+    @if (form.controls.fechaInicio.value && form.controls.fechaFin.value && dias() === null) {
+      <p class="field-error" role="alert">Las fechas deben ser válidas y la fecha final no puede ser anterior a la inicial.</p>
+    } @else if (dias() === 0) { <p class="field-error" role="alert">El período no contiene días laborables.</p> }
+    <p class="days" role="status">Días laborables: <strong>{{ dias() ?? '—' }}</strong></p>
+    <p class="hint">Se cuentan lunes a viernes, incluyendo ambas fechas. Los feriados aún no se descuentan.</p>
+    }
+    <div class="form-group"><label for="motivo">Motivo *</label><textarea id="motivo" rows="5" maxlength="1000" formControlName="motivo"></textarea>
+      @if (form.controls.motivo.touched && form.controls.motivo.invalid) { <p class="field-error">Escribe un motivo de hasta 1000 caracteres, no solo espacios.</p> }
+    </div>
+    <button class="btn-primary" type="submit" [disabled]="saving()">{{ saving() ? 'Enviando...' : 'Enviar solicitud' }}</button>
+  </fieldset>
+</form>

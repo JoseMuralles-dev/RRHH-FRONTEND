@@ -1,0 +1,48 @@
+<section class="page-container">
+  <header class="page-header"><h1>Solicitud #{{ id }}</h1><a routerLink="/solicitudes">Volver al listado</a></header>
+  @if (aviso()) { <p class="success" role="status">{{ aviso() }}</p> }
+  @if (error()) { <div class="error-box" role="alert">{{ error() }} <button type="button" [disabled]="loading() || saving()" (click)="cargar()">Actualizar detalle</button></div> }
+  @if (loading()) { <p role="status">Cargando solicitud...</p> }
+  @else if (solicitud(); as s) {
+    <article class="card">
+      <header class="page-header"><h2>{{ s.tipoIncidencia?.nombre || ('Tipo #' + s.idTipoIncidencia) }}</h2><app-solicitud-estado [estado]="s.estado" /></header>
+      <dl class="grid">
+        <div><dt>Empleado</dt><dd>{{ nombre(s) }}</dd></div>
+        @if (s.fechaInicio && s.fechaFin) {
+        <div><dt>Días laborables</dt><dd>{{ s.diasSolicitados }}</dd></div>
+        <div><dt>Fecha inicial</dt><dd>{{ s.fechaInicio }}</dd></div>
+        <div><dt>Fecha final</dt><dd>{{ s.fechaFin }}</dd></div>
+        }
+        <div><dt>Creada</dt><dd>{{ s.createdAt | date:'dd/MM/yyyy HH:mm' }}</dd></div>
+        <div><dt>Resolución</dt><dd>{{ s.fechaResolucion ? (s.fechaResolucion | date:'dd/MM/yyyy HH:mm') : 'Sin resolver' }}</dd></div>
+        <div class="wide"><dt>Motivo</dt><dd class="multiline">{{ s.motivo }}</dd></div>
+      </dl>
+    </article>
+    <section class="card" aria-labelledby="aprobaciones"><h2 id="aprobaciones">Seguimiento de aprobaciones</h2>
+      @for (a of aprobaciones(); track a.idAprobacion) {
+        <div class="approval">
+          <h3>{{ a.nivelAprobacion === 1 ? 'Jefe directo' : 'Recursos Humanos' }}</h3>
+          <p>{{ a.usuarioAprobador?.correo || ('Usuario #' + a.idUsuarioAprobador) }}</p>
+          @if (a.estado === 'PENDIENTE' && !abierta()) { <p>Sin respuesta: solicitud cerrada</p> }
+          @else { <app-solicitud-estado [estado]="a.estado" /> }
+          @if (a.comentario) { <p class="multiline">{{ a.comentario }}</p> }
+          @if (a.fechaRespuesta) { <p class="hint">{{ a.fechaRespuesta | date:'dd/MM/yyyy HH:mm' }}</p> }
+        </div>
+      } @empty { <p>No hay información de aprobaciones.</p> }
+    </section>
+    @if (puedeResolver() || puedeCancelar()) {
+      <section class="card" aria-label="Acciones disponibles">
+        @if (puedeResolver()) {
+          <label for="comentario">Comentario (obligatorio para rechazar)</label>
+          <textarea id="comentario" rows="3" maxlength="1000" [formControl]="comentario" [readOnly]="saving()"></textarea>
+          <div class="actions">
+            <button type="button" class="btn-primary" [disabled]="saving()" (click)="resolver('aprobar')">Aprobar</button>
+            <button type="button" class="danger" [disabled]="saving()" (click)="resolver('rechazar')">Rechazar</button>
+          </div>
+        }
+        @if (puedeCancelar()) { <button type="button" class="danger" [disabled]="saving()" (click)="resolver('cancelar')">Cancelar solicitud</button> }
+        @if (saving()) { <p role="status">Guardando respuesta...</p> }
+      </section>
+    }
+  }
+</section>

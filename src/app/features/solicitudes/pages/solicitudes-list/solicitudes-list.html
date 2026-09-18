@@ -1,0 +1,28 @@
+<section class="page-container">
+  <header class="page-header"><div><h1>Solicitudes</h1><p>Seguimiento de incidencias y aprobaciones</p></div>
+    @if (tieneEmpleado) { <a class="btn-primary" routerLink="/solicitudes/nueva">Nueva solicitud</a> }
+  </header>
+  <nav class="tabs" aria-label="Bandejas de solicitudes">
+    @if (tieneEmpleado) { <button type="button" [class.active]="vista() === 'mias'" [attr.aria-pressed]="vista() === 'mias'" (click)="cambiarVista('mias')">Mis solicitudes</button> }
+    <button type="button" [class.active]="vista() === 'pendientes'" [attr.aria-pressed]="vista() === 'pendientes'" (click)="cambiarVista('pendientes')">Pendientes de mi aprobación</button>
+    <button type="button" [class.active]="vista() === 'aprobadas'" [attr.aria-pressed]="vista() === 'aprobadas'" (click)="cambiarVista('aprobadas')">Aprobadas por mí</button>
+    <button type="button" [disabled]="loading()" (click)="recargar()">Actualizar</button>
+  </nav>
+  @if (!tieneEmpleado) { <p class="hint">Tu cuenta no tiene un empleado asociado. Puedes consultar las aprobaciones que te asignen.</p> }
+  @if (vista() === 'aprobadas') { <p class="hint">Solicitudes que ya aprobaste. El estado indica si aún esperan otra aprobación o si ya finalizaron.</p> }
+  @if (loading()) { <p role="status">Cargando solicitudes...</p> }
+  @else if (error()) { <div class="error-box" role="alert">{{ error() }} <button type="button" (click)="recargar()">Reintentar</button></div> }
+  @else if (!solicitudes().length) { <p class="card" role="status">{{ vista() === 'mias' ? 'Todavía no tienes solicitudes.' : vista() === 'aprobadas' ? 'Todavía no has aprobado solicitudes.' : 'No tienes solicitudes pendientes en tu turno de aprobación.' }}</p> }
+  @else {
+    <div class="table-container"><table>
+      <thead><tr><th>Solicitud</th><th>Tipo</th>@if (vista() !== 'mias') { <th>Empleado</th> }<th>Período</th><th>Días</th><th>Estado</th><th>Acciones</th></tr></thead>
+      <tbody>@for (s of solicitudes(); track s.idSolicitud) {
+        <tr><td>#{{ s.idSolicitud }}</td><td>{{ s.tipoIncidencia?.nombre || ('Tipo #' + s.idTipoIncidencia) }}</td>
+          @if (vista() !== 'mias') { <td>{{ nombre(s) }}</td> }
+          <td>{{ s.fechaInicio && s.fechaFin ? s.fechaInicio + ' al ' + s.fechaFin : 'No aplica' }}</td><td>{{ s.diasSolicitados ?? 'No aplica' }}</td>
+          <td><app-solicitud-estado [estado]="s.estado" /></td><td><a [routerLink]="['/solicitudes', s.idSolicitud]">Ver detalle</a></td>
+        </tr>
+      }</tbody>
+    </table></div>
+  }
+</section>

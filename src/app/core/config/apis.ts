@@ -25,5 +25,12 @@ export const API = {
   departamentos: {
     base: '/departamentos',
     byId: (id: number) => `/departamentos/${id}`
+  },
+  solicitudes: {
+    base: '/solicitudes',
+    tipos: '/solicitudes/tipos-incidencia',
+    mias: '/solicitudes/mis-solicitudes',
+    pendientes: '/solicitudes/pendientes-aprobacion',
+    aprobadas: '/solicitudes/aprobadas',
   }
 };
