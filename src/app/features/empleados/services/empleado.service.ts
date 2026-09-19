@@ -1,3 +1,4 @@
+import { PuestoOpcion } from '../../departamentos/models/departamento.model';
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
@@ -42,6 +43,7 @@ export class EmpleadoService {
     }));
   }
 
+  puestos() { return this.sesion(this.http.get<PuestoOpcion[]>(API.baseUrl + '/puestos')); }
   listar() { return this.sesion(this.http.get<Empleado[]>(this.url)); }
   obtener(id: number) { return this.sesion(this.http.get<Empleado>(`${this.url}/${id}`)); }
   select() { return this.sesion(this.http.get<EmpleadoOpcion[]>(`${this.url}/select`)); }

@@ -20,6 +20,7 @@ export const routes: Routes = [
     component: MainLayoutComponent,
 
     children: [
+      { path: 'departamentos', loadChildren: () => import('./features/departamentos/departamentos.routes').then(m => m.DEPARTAMENTOS_ROUTES) },
 
       {
         path: '',

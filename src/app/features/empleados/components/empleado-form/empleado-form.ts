@@ -1,3 +1,4 @@
+import { PuestoOpcion } from '../../../departamentos/models/departamento.model';
 import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidatorFn, Validators } from '@angular/forms';
@@ -31,6 +32,11 @@ export class EmpleadoForm implements OnInit {
   readonly error = signal('');
   readonly loadingJefes = signal(false);
   readonly errorJefes = signal('');
+  readonly puestos = signal<PuestoOpcion[]>([]);
+  readonly errorPuestos = signal('');
+  readonly loadingPuestos = signal(false);
+  readonly nombrePuestoActual = signal('Puesto actual no disponible');
+  get puestoNoDisponible() { const id = this.form.controls.idPuesto.value; return id !== null && !this.puestos().some(p => p.idPuesto === id); }
   readonly jefes = signal<EmpleadoOpcion[]>([]);
   get puedeEditar() { return this.auth.getNivelJerarquico() >= 3; }
 
@@ -67,9 +73,19 @@ export class EmpleadoForm implements OnInit {
 
   ngOnInit() {
     this.cargarJefes();
+    this.cargarPuestos();
     if (this.id !== null) this.cargarEmpleado();
   }
 
+  cargarPuestos() {
+    if (this.loadingPuestos()) return;
+    this.loadingPuestos.set(true);
+    this.errorPuestos.set('');
+    this.service.puestos().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: puestos => { this.puestos.set(puestos.filter(p => p.isActive && p.departamento?.isActive !== false)); this.loadingPuestos.set(false); },
+      error: error => { this.errorPuestos.set(mensajeError(error)); this.loadingPuestos.set(false); },
+    });
+  }
   cargarJefes() {
     if (this.loadingJefes()) return;
     this.loadingJefes.set(true);
@@ -92,6 +108,7 @@ export class EmpleadoForm implements OnInit {
     this.error.set('');
     this.service.obtener(this.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: empleado => {
+        this.nombrePuestoActual.set(empleado.puesto?.nombrePuesto ?? 'Puesto actual no disponible');
         this.original = datosFormulario(empleado);
         this.form.patchValue({ ...this.original,
           segundoNombre: this.original.segundoNombre ?? '',

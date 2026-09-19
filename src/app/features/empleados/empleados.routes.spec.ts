@@ -18,7 +18,7 @@ describe('Páginas de creación y edición de empleados', () => {
     TestBed.configureTestingModule({ providers: [
       provideRouter([{ path: 'empleados', children: EMPLEADOS_ROUTES }]),
       { provide: AuthService, useValue: { isAuthenticated: () => true, getNivelJerarquico: () => 3 } },
-      { provide: EmpleadoService, useValue: { obtener, select: () => of([]) } },
+      { provide: EmpleadoService, useValue: { obtener, select: () => of([]), puestos: () => of([]) } },
     ] });
   });
 

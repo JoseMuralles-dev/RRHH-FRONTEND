@@ -28,6 +28,7 @@ describe('EmpleadoForm', () => {
     http.expectOne('http://localhost:3000/empleados/select').flush([
       { idEmpleado: 7, nombreCompleto: 'Ana Pérez' }, { idEmpleado: 2, nombreCompleto: 'Luis López' },
     ]);
+    http.expectOne('http://localhost:3000/puestos').flush([{ idPuesto: 1, nombrePuesto: 'Analista', isActive: true, departamento: { nombreDepartamento: 'Recursos Humanos', isActive: true } }]);
     if (id) http.expectOne(`http://localhost:3000/empleados/${id}`).flush(empleado);
     fixture.detectChanges();
     return { fixture, component: fixture.componentInstance, navigate };
@@ -56,6 +57,7 @@ describe('EmpleadoForm', () => {
   it('preloads data, excludes self and sends only changed fields including null removals', () => {
     const { component, fixture } = setup('7');
     expect(component.form.controls.dpi.value).toBe(empleado.dpi);
+    expect(fixture.nativeElement.querySelector('#idPuesto').selectedOptions[0].textContent).toContain('Analista — Recursos Humanos');
     expect(component.jefes().map(j => j.idEmpleado)).toEqual([2]);
     const select: HTMLSelectElement = fixture.nativeElement.querySelector('#idJefeDirecto');
     expect(select.selectedOptions[0].textContent).toContain('Luis López');

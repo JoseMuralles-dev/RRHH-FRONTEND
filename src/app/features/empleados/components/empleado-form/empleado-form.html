@@ -26,9 +26,17 @@
             </div>
           }
           <div>
-            <label for="idPuesto">ID del puesto *</label>
-            <input id="idPuesto" type="number" min="1" step="1" formControlName="idPuesto" aria-describedby="puesto-ayuda puesto-error">
-            <p id="puesto-ayuda" class="hint">Ingresa el ID de un puesto activo. El catálogo de puestos aún no está disponible.</p>
+            <label for="idPuesto">Puesto *</label>
+            <select id="idPuesto" formControlName="idPuesto" aria-describedby="puesto-ayuda puesto-error">
+              <option [ngValue]="null">Selecciona un puesto</option>
+              @if (puestoNoDisponible) { <option [ngValue]="form.controls.idPuesto.value">{{ nombrePuestoActual() }} (no disponible en el catálogo)</option> }
+              @for (puesto of puestos(); track puesto.idPuesto) {
+                <option [ngValue]="puesto.idPuesto">{{ puesto.nombrePuesto }} — {{ puesto.departamento?.nombreDepartamento || 'Sin departamento' }}</option>
+              }
+            </select>
+            <p id="puesto-ayuda" class="hint">Selecciona por nombre del puesto y departamento.</p>
+            @if (loadingPuestos()) { <p role="status">Cargando puestos…</p> }
+            @if (errorPuestos()) { <p class="error-box" role="alert">{{ errorPuestos() }}</p><button type="button" (click)="cargarPuestos()">Reintentar puestos</button> }
             <span id="puesto-error" class="field-error">{{ errorCampo(form.controls.idPuesto) }}</span>
           </div>
           <div>

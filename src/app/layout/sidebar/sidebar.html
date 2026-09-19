@@ -20,12 +20,7 @@
 
 @if (auth.getNivelJerarquico() >= 4) { <a routerLink="/usuarios" routerLinkActive="active">Usuarios</a> }
 
-    <a
-      routerLink="/departamentos"
-      routerLinkActive="active"
-    >
-      Departamentos
-    </a>
+@if (auth.getNivelJerarquico() >= 3) { <a routerLink="/departamentos" routerLinkActive="active">Departamentos</a> }
 
     <a
       routerLink="/equipos"

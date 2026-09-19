@@ -1,0 +1,38 @@
+<section class="page">
+  <header><div><p class="eyebrow">ORGANIZACIÓN</p><h1>Departamentos</h1><p>Administra las áreas de la empresa y consulta sus puestos.</p></div>
+    @if (puedeEditar) {<button class="primary" (click)="abrir()" [disabled]="saving()">Nuevo departamento</button>}
+  </header>
+  @if (mensaje()) {<p class="success" role="status">{{ mensaje() }}</p>}
+  @if (error()) {<div class="error" role="alert">{{ error() }} <button (click)="cargar()" [disabled]="loading()">Reintentar consulta</button></div>}
+  @if (formularioAbierto()) {
+    <form class="panel editor" [formGroup]="form" (ngSubmit)="guardar()">
+      <h2>{{ editando() ? 'Editar departamento' : 'Nuevo departamento' }}</h2>
+      @if (errorForm()) {<p class="error" role="alert">{{ errorForm() }}</p>}
+      <fieldset [disabled]="saving()">
+        <label for="nombre-departamento">Nombre del departamento *</label>
+        <input id="nombre-departamento" formControlName="nombreDepartamento" maxlength="100" aria-describedby="nombre-error">
+        @if (form.controls.nombreDepartamento.touched && form.controls.nombreDepartamento.invalid) {<p id="nombre-error" class="error-text">Ingresa un nombre de hasta 100 caracteres.</p>}
+        <label for="descripcion-departamento">Descripción</label>
+        <textarea id="descripcion-departamento" formControlName="descripcion" rows="3"></textarea>
+        <div class="actions"><button type="submit" class="primary" [disabled]="saving()">{{ saving() ? 'Guardando…' : 'Guardar departamento' }}</button><button type="button" (click)="cerrar()">Cancelar</button></div>
+      </fieldset>
+    </form>
+  }
+  @if (pendienteDesactivar(); as pendiente) {
+    <div class="confirm" role="alert"><strong>¿Desactivar {{ pendiente.nombreDepartamento }}?</strong><p>Se conservará el historial. No se permite desactivar departamentos con puestos activos.</p>
+      <div class="actions"><button class="danger" [disabled]="saving()" (click)="desactivar()">Confirmar desactivación</button><button [disabled]="saving()" (click)="pendienteDesactivar.set(null)">Cancelar</button></div>
+    </div>
+  }
+  <div class="panel">
+    <label for="buscar-departamento">Buscar por nombre</label><input id="buscar-departamento" type="search" placeholder="Ej. Bodega" [value]="busqueda()" (input)="busqueda.set($any($event.target).value)">
+    @if (loading()) {<p role="status">Cargando departamentos…</p>}
+    @else {
+      <div class="table-scroll"><table><thead><tr><th>Departamento</th><th>Descripción</th><th>Puestos relacionados</th>@if (puedeEditar) {<th>Acciones</th>}</tr></thead>
+      <tbody>@for (d of filtrados(); track d.idDepartamento) {<tr>
+        <td><strong>{{ d.nombreDepartamento }}</strong></td><td>{{ d.descripcion || 'Sin descripción' }}</td>
+        <td>@if (d.puestos?.length) {<details><summary>{{ puestosActivos(d) }} puestos activos</summary><ul>@for (p of d.puestos; track p.idPuesto) {<li>{{ p.nombrePuesto }} @if (!p.isActive) {<span class="muted">(inactivo)</span>}</li>}</ul></details>} @else {<span class="muted">Sin puestos registrados</span>}</td>
+        @if (puedeEditar) {<td><div class="actions"><button [disabled]="saving()" (click)="abrir(d)">Editar</button><button class="danger" [disabled]="saving()" (click)="pendienteDesactivar.set(d)">Desactivar</button></div></td>}
+      </tr>} @empty {<tr><td [attr.colspan]="puedeEditar ? 4 : 3">No hay departamentos que mostrar.</td></tr>}</tbody></table></div>
+    }
+  </div>
+</section>
