@@ -23,9 +23,9 @@ describe('Acceso y detalle de empleados', () => {
       { data: { nivel } } as unknown as ActivatedRouteSnapshot, {} as RouterStateSnapshot));
   }
 
-  it('allows level 2 to read but only level 3 to edit', () => {
+  it('denies level 2 and allows HR to read and edit', () => {
     token(2);
-    expect(acceso(2)).toBe(true);
+    expect((acceso(2) as UrlTree).toString()).toBe('/empleados/sin-acceso');
     expect((acceso(3) as UrlTree).toString()).toBe('/empleados/sin-acceso');
     token(3);
     expect(acceso(3)).toBe(true);

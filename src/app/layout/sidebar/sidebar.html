@@ -14,16 +14,11 @@
       Inicio
     </a>
 
-    @if (auth.getNivelJerarquico() >= 2) {
+    @if (auth.getNivelJerarquico() >= 3) {
       <a routerLink="/empleados" routerLinkActive="active">Empleados</a>
     }
 
-    <a
-      routerLink="/usuarios"
-      routerLinkActive="active"
-    >
-      Usuarios
-    </a>
+@if (auth.getNivelJerarquico() >= 4) { <a routerLink="/usuarios" routerLinkActive="active">Usuarios</a> }
 
     <a
       routerLink="/departamentos"
@@ -54,18 +49,19 @@
     </a>
 
     <a
-      routerLink="/kpis"
+      routerLink="/kpis/mi-desempeno"
       routerLinkActive="active"
     >
-      KPIs
+      Mis KPI
     </a>
-    <a routerLink="/usuarios/crear">
-  Crear usuario
-    </a>
+    @if (auth.getUsuarioSesion(); as usuario) {
+      @if (usuario.idEmpleado !== null && [2, 3, 4].includes(usuario.nivelJerarquico)) {
+        <a routerLink="/kpis/equipo" routerLinkActive="active">KPI de mi equipo</a>
+      }
+    }
+@if (auth.getNivelJerarquico() >= 4) { <a routerLink="/usuarios/nuevo" routerLinkActive="active">Crear usuario</a> }
 
-    <a routerLink="/usuarios/cambiar-password">
-    Cambiar contraseña
-    </a>
+
 
   </nav>
 

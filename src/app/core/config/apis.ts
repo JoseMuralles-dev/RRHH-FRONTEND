@@ -1,3 +1,4 @@
+
 export const API = {
   baseUrl: 'http://localhost:3000',
 
@@ -32,5 +33,11 @@ export const API = {
     mias: '/solicitudes/mis-solicitudes',
     pendientes: '/solicitudes/pendientes-aprobacion',
     aprobadas: '/solicitudes/aprobadas',
+  },
+  kpi: {
+
+      miDashboard: '/kpi/mi-dashboard',
+      miEquipo: '/kpi/mi-equipo'
+
   }
 };

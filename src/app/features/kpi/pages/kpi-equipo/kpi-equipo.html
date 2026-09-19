@@ -1,0 +1,680 @@
+<div class="equipo-page">
+
+  <div class="page-header">
+
+    <div>
+
+      <h1>
+        Desempeño del equipo
+      </h1>
+
+      <p>
+        Consulta los KPI del personal a tu cargo.
+      </p>
+
+    </div>
+
+
+    <form
+      class="period-selector"
+      [formGroup]="periodoForm"
+    >
+
+      <div>
+
+        <label>
+          Mes
+        </label>
+
+        <select
+          formControlName="mes"
+        >
+
+          @for (
+            mes of meses;
+            track mes.numero
+          ) {
+
+            <option
+              [value]="mes.numero"
+            >
+              {{ mes.nombre }}
+            </option>
+
+          }
+
+        </select>
+
+      </div>
+
+
+      <div>
+
+        <label>
+          Año
+        </label>
+
+        <select
+          formControlName="anio"
+        >
+
+          @for (
+            anio of anios;
+            track anio
+          ) {
+
+            <option
+              [value]="anio"
+            >
+              {{ anio }}
+            </option>
+
+          }
+
+        </select>
+
+      </div>
+
+    </form>
+
+  </div>
+
+
+  @if (loading) {
+
+    <div class="state-card">
+
+      <div class="spinner"></div>
+
+      <p>
+        Cargando equipo...
+      </p>
+
+    </div>
+
+  }
+
+  @else if (errorMessage) {
+
+    <div class="error-card">
+
+      {{ errorMessage }}
+
+    </div>
+
+  }
+
+  @else if (equipo) {
+
+    <div class="summary-bar">
+
+      <div>
+
+        <span>
+          Personal a cargo
+        </span>
+
+        <strong>
+          {{ equipo.totalSubordinados }}
+        </strong>
+
+      </div>
+
+      <div>
+
+        <span>
+          Período
+        </span>
+
+        <strong>
+          {{ equipo.periodo.mes }}/{{ equipo.periodo.anio }}
+        </strong>
+
+      </div>
+
+    </div>
+
+
+    @if (
+      equipo.empleados.length === 0
+    ) {
+
+      <div class="state-card">
+
+        No hay empleados asignados a este encargado.
+
+      </div>
+
+    }
+
+    @else {
+
+      <div class="employee-grid">
+
+        @for (
+          item of equipo.empleados;
+          track item.empleado.idEmpleado
+        ) {
+
+          <article
+            class="employee-card"
+            [class.selected]="
+              empleadoSeleccionado?.empleado?.idEmpleado ===
+              item.empleado.idEmpleado
+            "
+          >
+
+            <div class="employee-header">
+
+              <div
+                class="avatar"
+              >
+                {{
+                  item.empleado.nombre
+                    .charAt(0)
+                }}
+              </div>
+
+              <div>
+
+                <h3>
+                  {{ item.empleado.nombre }}
+                </h3>
+
+                <span>
+                  Empleado #{{ item.empleado.idEmpleado }}
+                </span>
+
+              </div>
+
+            </div>
+
+
+            @if (
+              item.dashboard.tieneDatos
+            ) {
+
+              @if (
+                evaluacionDe(item);
+                as evaluacion
+              ) {
+
+                <div class="employee-score">
+
+                  <div>
+
+                    <span>
+                      Nota final
+                    </span>
+
+                    <strong>
+                      {{
+                        evaluacion.notaFinal
+                          | number:'1.2-2'
+                      }}
+                    </strong>
+
+                  </div>
+
+
+                  <div>
+
+                    <span>
+                      Puntaje base
+                    </span>
+
+                    <strong>
+                      {{
+                        evaluacion.puntajeBase
+                          | number:'1.2-2'
+                      }}
+                    </strong>
+
+                  </div>
+
+                </div>
+
+              }
+
+              <div class="data-info">
+
+                {{
+                  item.dashboard.diasConDatos
+                }}
+                días con información
+
+              </div>
+
+            }
+
+            @else {
+
+              <div class="no-data">
+
+                Sin datos para este período
+
+              </div>
+
+            }
+
+
+            <button
+              class="btn-detail"
+              type="button"
+              (click)="
+                seleccionarEmpleado(item)
+              "
+            >
+              Ver detalle
+            </button>
+
+          </article>
+
+        }
+
+      </div>
+
+    }
+
+  }
+
+
+  <!-- DETALLE -->
+
+  @if (
+    empleadoSeleccionado;
+    as seleccionado
+  ) {
+
+    <section class="employee-detail">
+
+      <div class="detail-header">
+
+        <div>
+
+          <span class="detail-label">
+            Detalle de desempeño
+          </span>
+
+          <h2>
+            {{ seleccionado.empleado.nombre }}
+          </h2>
+
+        </div>
+
+        <button
+          type="button"
+          class="btn-close"
+          (click)="cerrarDetalle()"
+        >
+          Cerrar
+        </button>
+
+      </div>
+
+
+      @if (
+        !seleccionado.dashboard.tieneDatos
+      ) {
+
+        <div class="state-card">
+
+          <h3>
+            Sin datos disponibles
+          </h3>
+
+          <p>
+            Este empleado no tiene KPI registrados
+            para el período seleccionado.
+          </p>
+
+        </div>
+
+      }
+
+      @else {
+
+        @if (
+          evaluacionDe(seleccionado);
+          as evaluacion
+        ) {
+
+          <div class="evaluation-summary">
+
+            <div>
+
+              <span>
+                Nota final
+              </span>
+
+              <strong>
+                {{
+                  evaluacion.notaFinal
+                    | number:'1.2-2'
+                }}
+              </strong>
+
+            </div>
+
+
+            <div>
+
+              <span>
+                Puntaje base
+              </span>
+
+              <strong>
+                {{
+                  evaluacion.puntajeBase
+                    | number:'1.2-2'
+                }}
+              </strong>
+
+            </div>
+
+
+            <div>
+
+              <span>
+                Penalización
+              </span>
+
+              <strong>
+                {{
+                  evaluacion.penalizacionTotal
+                    | number:'1.2-2'
+                }}
+              </strong>
+
+            </div>
+
+
+            <div>
+
+              <span>
+                Meta global
+              </span>
+
+              <strong>
+                {{
+                  evaluacion.metaGlobal
+                    | number:'1.2-2'
+                }}
+              </strong>
+
+            </div>
+
+          </div>
+
+
+          <h3 class="section-heading">
+            Indicadores
+          </h3>
+
+
+          <div class="kpi-grid">
+
+            @for (
+              resultado of evaluacion.resultados;
+              track resultado.idResultado
+            ) {
+
+              <article class="kpi-card">
+
+                <div class="kpi-title">
+
+                  <div>
+
+                    <h4>
+                      {{ resultado.nombre }}
+                    </h4>
+
+                    <span>
+                      {{ resultado.codigo }}
+                    </span>
+
+                  </div>
+
+                  <small>
+                    {{ resultado.unidadMedida }}
+                  </small>
+
+                </div>
+
+
+                <div class="kpi-value">
+
+                  <strong>
+
+                    {{
+                      resultado.valorObtenido
+                        | number:'1.0-2'
+                    }}
+
+                  </strong>
+
+                  <span>
+
+                    /
+                    {{
+                      resultado.metaAplicada
+                        | number:'1.0-2'
+                    }}
+
+                  </span>
+
+                </div>
+
+
+                <div class="progress-info">
+
+                  <span>
+                    Cumplimiento
+                  </span>
+
+                  @if (
+                    resultado.porcentajeCumplimiento !== null
+                  ) {
+
+                    <strong>
+
+                      {{
+                        resultado.porcentajeCumplimiento
+                          | number:'1.0-2'
+                      }}%
+
+                    </strong>
+
+                  }
+
+                  @else {
+
+                    <span>
+                      N/D
+                    </span>
+
+                  }
+
+                </div>
+
+
+                <div class="progress-track">
+
+                  <div
+                    class="progress-bar"
+                    [style.width.%]="
+                      limitarPorcentaje(
+                        resultado.porcentajeCumplimiento
+                      )
+                    "
+                  >
+                  </div>
+
+                </div>
+
+
+                <div class="points-row">
+
+                  <span>
+                    Puntos
+                  </span>
+
+                  <strong>
+                    {{
+                      resultado.puntosObtenidos
+                        | number:'1.2-2'
+                    }}
+                  </strong>
+
+                </div>
+
+
+                @if (
+                  resultado.observacion
+                ) {
+
+                  <div class="observation">
+
+                    {{
+                      resultado.observacion
+                    }}
+
+                  </div>
+
+                }
+
+
+                @if (
+                  tieneDetalles(resultado)
+                ) {
+
+                  <details>
+
+                    <summary>
+                      Ver desglose
+                    </summary>
+
+                    @for (
+                      detalle of resultado.detalles;
+                      track $index
+                    ) {
+
+                      <div class="detail-row">
+
+                        <div>
+
+                          <strong>
+                            {{ detalle.origen }}
+                          </strong>
+
+                          <span>
+                            {{ detalle.descripcion }}
+                          </span>
+
+                        </div>
+
+                        <strong>
+
+                          {{
+                            detalle.valor
+                              | number:'1.0-2'
+                          }}
+
+                        </strong>
+
+                      </div>
+
+                    }
+
+                  </details>
+
+                }
+
+              </article>
+
+            }
+
+          </div>
+
+        }
+
+
+        <h3 class="section-heading">
+          Actividad diaria
+        </h3>
+
+
+        <div class="series-grid">
+
+          @for (
+            serie of seleccionado.dashboard.seriesDiarias;
+            track serie.idMetrica
+          ) {
+
+            <div class="series-card">
+
+              <h4>
+                {{ serie.nombre }}
+              </h4>
+
+              <span class="series-unit">
+                {{ serie.unidadMedida }}
+              </span>
+
+
+              <div class="series-table">
+
+                <table>
+
+                  <thead>
+
+                    <tr>
+                      <th>Fecha</th>
+                      <th>Valor</th>
+                    </tr>
+
+                  </thead>
+
+                  <tbody>
+
+                    @for (
+                      punto of serie.puntos;
+                      track punto.fecha
+                    ) {
+
+                      <tr>
+
+                        <td>
+                          {{ punto.fecha }}
+                        </td>
+
+                        <td>
+                          {{
+                            punto.valor
+                              | number:'1.0-2'
+                          }}
+                        </td>
+
+                      </tr>
+
+                    }
+
+                  </tbody>
+
+                </table>
+
+              </div>
+
+            </div>
+
+          }
+
+        </div>
+
+      }
+
+    </section>
+
+  }
+
+</div>

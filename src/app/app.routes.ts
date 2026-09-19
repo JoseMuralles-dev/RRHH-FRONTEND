@@ -1,3 +1,4 @@
+import { authGuard } from './core/guards/auth-guard';
 import { Routes } from '@angular/router';
 
 import { LoginComponent } from './features/auth/pages/login/login';
@@ -45,6 +46,13 @@ export const routes: Routes = [
         path: 'solicitudes',
         loadChildren: () => import('./features/solicitudes/solicitudes.routes')
           .then(m => m.SOLICITUDES_ROUTES)
+      },
+      {
+        path: 'kpis',
+        canActivate: [authGuard],
+        loadChildren: () =>
+          import('./features/kpi/kpi.routes')
+            .then(m => m.KPI_ROUTES)
       }
 
     ]
