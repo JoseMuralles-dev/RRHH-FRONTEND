@@ -1,0 +1,11 @@
+﻿@for (serie of series; track serie.id) {
+  <app-kpi-bar-chart
+    tipo="linea"
+    [titulo]="serie.nombre"
+    descripcion="Valores diarios del empleado seleccionado."
+    [unidad]="serie.unidad"
+    [rows]="serie.rows">
+  </app-kpi-bar-chart>
+} @empty {
+  <app-kpi-bar-chart titulo="Actividad diaria" />
+}

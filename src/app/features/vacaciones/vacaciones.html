@@ -1,0 +1,55 @@
+﻿<section class="vacaciones">
+  <header>
+    <div><h1>Mis vacaciones</h1><p>Consulta tus solicitudes y los períodos de descanso aprobados.</p></div>
+    <a class="accion" routerLink="/solicitudes/nueva">Nueva solicitud</a>
+  </header>
+  <nav class="vistas" aria-label="Consultas de vacaciones">
+    <button type="button" [class.activa]="vista() === 'solicitudes'" [attr.aria-pressed]="vista() === 'solicitudes'" (click)="cambiarVista('solicitudes')">Mis solicitudes</button>
+    <button type="button" [class.activa]="vista() === 'proximas'" [attr.aria-pressed]="vista() === 'proximas'" (click)="cambiarVista('proximas')">Próximas vacaciones</button>
+    <button type="button" [class.activa]="vista() === 'historial'" [attr.aria-pressed]="vista() === 'historial'" (click)="cambiarVista('historial')">Historial</button>
+  </nav>
+  <form class="filtros" (ngSubmit)="cargar()">
+    @if (vista() !== 'proximas') {
+      <label>Año <input type="number" name="anio" [(ngModel)]="anio" min="1000" max="9999" required></label>
+    }
+    @if (vista() === 'solicitudes') {
+      <label>Estado <select name="estado" [ngModel]="estado()" (ngModelChange)="estado.set($event)">
+        @for (opcion of estados; track opcion.valor) { <option [value]="opcion.valor">{{ opcion.texto }}</option> }
+      </select></label>
+    }
+    <button class="accion" type="submit">Actualizar</button>
+  </form>
+  @if (vista() === 'proximas') {
+    <p class="ayuda">Vacaciones aprobadas que comienzan hoy o después, incluyendo los próximos años.</p>
+  }
+  @if (vista() === 'historial') {
+    <p class="ayuda">Solicitudes pasadas o resueltas del año seleccionado. Incluye aprobaciones de períodos futuros.</p>
+  }
+  <div aria-live="polite">
+    @if (cargando()) { <p class="mensaje" role="status">Cargando vacaciones…</p> }
+    @else if (error()) { <p class="error" role="alert">{{ error() }}</p> }
+    @else if (visibles().length === 0) { <p class="mensaje">No hay vacaciones para esta consulta.</p> }
+    @else {
+      <p class="ayuda">{{ visibles().length }} solicitud(es)</p>
+      <div class="tabla">
+        <table>
+          <caption class="sr-only">Vacaciones del empleado autenticado</caption>
+          <thead><tr><th>Solicitud</th><th>Tipo</th><th>Período</th><th>Días solicitados</th><th>Estado</th><th>Motivo</th><th>Resolución</th></tr></thead>
+          <tbody>
+            @for (item of visibles(); track item.idSolicitud) {
+              <tr>
+                <td><a [routerLink]="['/solicitudes', item.idSolicitud]">Ver solicitud #{{ item.idSolicitud }}</a></td>
+                <td>{{ item.nombreTipo }}</td>
+                <td class="periodo">{{ (item.fechaInicio | date:'dd/MM/yyyy':'UTC') || 'Sin fecha' }}<br>al {{ (item.fechaFin | date:'dd/MM/yyyy':'UTC') || 'Sin fecha' }}</td>
+                <td>{{ item.diasSolicitados ?? '—' }}</td>
+                <td><span class="estado" [class.aprobada]="item.estadoSolicitud === 'APROBADA'" [class.rechazada]="item.estadoSolicitud === 'RECHAZADA'">{{ etiqueta(item.estadoSolicitud) }}</span></td>
+                <td class="motivo">{{ item.motivo || '—' }}</td>
+                <td>{{ (item.fechaResolucion | date:'dd/MM/yyyy HH:mm':'-0600') || 'Pendiente' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+</section>

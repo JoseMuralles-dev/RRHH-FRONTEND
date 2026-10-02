@@ -37,7 +37,7 @@ export class DetalleSolicitud implements OnInit {
   ngOnInit() { this.cargar(); }
   cargar() {
     if (this.loading()) return;
-    if (!Number.isSafeInteger(this.id) || this.id < 1) { this.error.set('El ID de solicitud no es v?lido.'); return; }
+    if (!Number.isSafeInteger(this.id) || this.id < 1) { this.error.set('El ID de solicitud no es válido.'); return; }
     this.loading.set(true); this.error.set(''); this.solicitud.set(null);
     this.service.detalle(this.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: solicitud => { this.solicitud.set(solicitud); this.loading.set(false); },
@@ -48,7 +48,7 @@ export class DetalleSolicitud implements OnInit {
     if (this.saving() || this.loading() || !this.solicitud()) return;
     this.error.set(''); this.aviso.set('');
     if (accion === 'cancelar') {
-      if (!this.puedeCancelar() || !window.confirm('?Cancelar esta solicitud? Esta acci?n no se puede deshacer.')) return;
+      if (!this.puedeCancelar() || !window.confirm('¿Cancelar esta solicitud? Esta acción no se puede deshacer.')) return;
     } else {
       if (!this.puedeResolver()) return;
       this.comentario.markAsTouched();
@@ -62,7 +62,7 @@ export class DetalleSolicitud implements OnInit {
     request.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.saving.set(false); this.comentario.reset();
-        this.aviso.set(accion === 'aprobar' ? 'Tu aprobaci?n fue registrada.' : accion === 'rechazar' ? 'Solicitud rechazada.' : 'Solicitud cancelada.');
+        this.aviso.set(accion === 'aprobar' ? 'Tu aprobación fue registrada.' : accion === 'rechazar' ? 'Solicitud rechazada.' : 'Solicitud cancelada.');
         this.cargar();
       },
       error: error => { this.saving.set(false); this.error.set(errorSolicitud(error)); },

@@ -9,7 +9,7 @@ import { EstadoSolicitud } from '../../models/solicitud.model';
 export class SolicitudEstado {
   readonly estado = input.required<EstadoSolicitud>();
   readonly etiquetas: Record<EstadoSolicitud, string> = {
-    PENDIENTE: 'Pendiente', EN_REVISION: 'En revisi?n', APROBADA: 'Aprobada',
+    PENDIENTE: 'Pendiente', EN_REVISION: 'En revisión', APROBADA: 'Aprobada',
     RECHAZADA: 'Rechazada', CANCELADA: 'Cancelada',
   };
 }

@@ -1,0 +1,11 @@
+﻿@for (indicador of indicadores; track indicador.id) {
+  <app-kpi-bar-chart
+    [titulo]="indicador.nombre"
+    descripcion="Cumplimiento por empleado. La meta corresponde al 100 %."
+    unidad="%"
+    [referencia]="100"
+    [rows]="indicador.rows">
+  </app-kpi-bar-chart>
+} @empty {
+  <app-kpi-bar-chart titulo="Cumplimiento por indicador" />
+}

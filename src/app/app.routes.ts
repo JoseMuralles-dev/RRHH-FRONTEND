@@ -1,4 +1,4 @@
-import { authGuard } from './core/guards/auth-guard';
+﻿import { authGuard } from './core/guards/auth-guard';
 import { Routes } from '@angular/router';
 
 import { LoginComponent } from './features/auth/pages/login/login';
@@ -20,6 +20,11 @@ export const routes: Routes = [
     component: MainLayoutComponent,
 
     children: [
+      {
+        path: 'vacaciones',
+        canActivate: [authGuard],
+        loadComponent: () => import('./features/vacaciones/vacaciones').then(m => m.Vacaciones)
+      },
       { path: 'departamentos', loadChildren: () => import('./features/departamentos/departamentos.routes').then(m => m.DEPARTAMENTOS_ROUTES) },
 
       {
@@ -65,3 +70,4 @@ export const routes: Routes = [
   }
 
 ];
+

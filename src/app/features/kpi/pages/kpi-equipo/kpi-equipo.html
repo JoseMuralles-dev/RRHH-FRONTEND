@@ -134,6 +134,17 @@
 
     </div>
 
+    <section class="charts-section">
+
+  <app-grafica-equipo
+    [empleados]="equipo.empleados">
+  </app-grafica-equipo>
+
+  <app-grafica-kpi
+    [empleados]="equipo.empleados">
+  </app-grafica-kpi>
+
+</section>
 
     @if (
       equipo.empleados.length === 0
@@ -603,6 +614,10 @@
           Actividad diaria
         </h3>
 
+
+        <app-grafica-serie-diaria
+          [dashboard]="seleccionado.dashboard">
+        </app-grafica-serie-diaria>
 
         <div class="series-grid">
 

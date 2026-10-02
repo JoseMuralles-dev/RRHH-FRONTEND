@@ -30,6 +30,9 @@ import {
   KpiEvaluacion,
   KpiResultado
 } from '../../../../features/kpi/models/dashboard-kpi.model';
+import { GraficaEquipo } from '../../components/grafica-equipo/grafica-equipo';
+import { GraficaKpi } from '../../components/grafica-kpi/grafica-kpi';
+import { GraficaSerieDiaria } from '../../components/grafica-serie-diaria/grafica-serie-diaria';
 
 @Component({
   selector: 'app-kpi-equipo',
@@ -37,8 +40,11 @@ import {
 
   imports: [
     CommonModule,
-    ReactiveFormsModule
-  ],
+    ReactiveFormsModule,
+    GraficaEquipo,
+    GraficaKpi,
+    GraficaSerieDiaria
+],
 
   templateUrl: './kpi-equipo.html',
   styleUrl: './kpi-equipo.css'

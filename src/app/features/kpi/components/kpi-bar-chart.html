@@ -1,0 +1,48 @@
+﻿<section class="chart">
+  <header><div><span class="eyebrow">{{ tipo === 'linea' ? 'EVOLUCIÓN DIARIA' : 'DESEMPEÑO' }}</span><h3>{{ titulo }}</h3></div><span class="unit">{{ unidad }}</span></header>
+  <p class="description">{{ descripcion }}</p>
+  @if (validos.length) {
+    <div class="summary">
+      <div><span class="muted">Promedio {{ tipo === 'linea' ? 'de días registrados' : 'de valores disponibles' }}</span><div class="value">{{ promedio | number:'1.0-2' }} <small>{{ unidad }}</small></div><span class="muted">{{ validos.length }} de {{ rows.length }} registros con datos</span></div>
+      @if (referencia > 0) {
+        <div class="gauge" [attr.aria-label]="'Promedio ' + promedio + unidad + ', meta ' + referencia + unidad">
+          <svg viewBox="0 0 120 72" aria-hidden="true">
+            <path d="M 12 60 A 48 48 0 0 1 108 60" class="gauge-track" />
+            <path d="M 12 60 A 48 48 0 0 1 108 60" class="gauge-fill" pathLength="100" [attr.stroke-dasharray]="avance + ' 100'" />
+            <text x="60" y="54" text-anchor="middle">{{ promedio | number:'1.0-0' }}{{ unidad }}</text>
+          </svg><span>Meta: {{ referencia }}{{ unidad }}</span>
+        </div>
+      }
+    </div>
+    <div class="plot-scroll" tabindex="0" role="region" [attr.aria-label]="'Gráfica de ' + titulo">
+      <svg class="plot" [attr.viewBox]="'0 0 ' + canvasWidth + ' 270'" [style.min-width.px]="canvasWidth" role="img" [attr.aria-label]="titulo + '. Valores disponibles en Ver datos.'">
+        @for (tick of ticks; track $index) {
+          <line x1="64" [attr.x2]="canvasWidth - 26" [attr.y1]="y(tick)" [attr.y2]="y(tick)" class="grid-line" />
+          <text x="54" [attr.y]="y(tick) + 4" text-anchor="end" class="axis">{{ tick | number:'1.0-1' }}</text>
+        }
+        @if (referencia > 0) {
+          <line x1="64" [attr.x2]="canvasWidth - 26" [attr.y1]="y(referencia)" [attr.y2]="y(referencia)" class="target" />
+          <text [attr.x]="canvasWidth - 26" [attr.y]="y(referencia) - 8" text-anchor="end" class="target-label">Meta {{ referencia }}{{ unidad }}</text>
+        }
+        <line x1="64" [attr.x2]="canvasWidth - 26" [attr.y1]="y(0)" [attr.y2]="y(0)" class="baseline" />
+        @if (tipo === 'linea') { <path [attr.d]="path" class="trend" /> }
+        @for (row of rows; track $index; let i = $index) {
+          @if (row.value !== null) {
+            @if (tipo === 'barras') {
+              <rect class="bar" [class.negative]="row.value < 0" [attr.x]="x(i) - barWidth / 2" [attr.y]="y(row.value > 0 ? row.value : 0)" [attr.width]="barWidth" [attr.height]="ancho(row.value) * 1.8" rx="4"><title>{{ row.label }}: {{ row.value }} {{ unidad }}</title></rect>
+              <text [attr.x]="x(i)" [attr.y]="row.value >= 0 ? y(row.value) - 8 : y(row.value) + 14" text-anchor="middle" class="data-value">{{ row.value | number:'1.0-1' }}</text>
+            } @else {
+              <circle [attr.cx]="x(i)" [attr.cy]="y(row.value)" r="4" class="point"><title>{{ row.label }}: {{ row.value }} {{ unidad }}</title></circle>
+            }
+          } @else { <text [attr.x]="x(i)" y="210" text-anchor="middle" class="axis">N/D</text> }
+          <text [attr.x]="x(i)" y="247" text-anchor="middle" class="axis"><title>{{ row.label }}</title>{{ shortLabel(row.label) }}</text>
+        }
+      </svg>
+    </div>
+  } @else { <div class="empty"><span>—</span><p>No hay datos para el período seleccionado.</p></div> }
+  @if (rows.length) {
+    <details><summary>Ver datos · {{ rows.length }} registros</summary><ul>
+      @for (row of rows; track $index) { <li class="label"><span>{{ row.label }}</span><strong>{{ row.value === null ? 'Sin datos' : (row.value | number:'1.0-2') }}{{ row.value === null ? '' : ' ' + unidad }}</strong></li> }
+    </ul></details>
+  }
+</section>

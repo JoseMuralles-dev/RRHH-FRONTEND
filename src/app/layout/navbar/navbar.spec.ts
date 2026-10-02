@@ -1,22 +1,20 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+﻿import { TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideRouter } from '@angular/router';
+import { NavbarComponent } from './navbar';
 
-import { Navbar } from './navbar';
-
-describe('Navbar', () => {
-  let component: Navbar;
-  let fixture: ComponentFixture<Navbar>;
-
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [Navbar],
-    }).compileComponents();
-
-    fixture = TestBed.createComponent(Navbar);
-    component = fixture.componentInstance;
+describe('Nombre de la sesión', () => {
+  beforeEach(() => TestBed.configureTestingModule({ imports: [NavbarComponent],
+    providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()] }));
+  afterEach(() => TestBed.inject(HttpTestingController).verify());
+  it.each(['José Pérez', 'María López', 'admin@empresa.com'])('muestra el perfil %s con sus tildes', async nombre => {
+    const fixture = TestBed.createComponent(NavbarComponent);
+    fixture.detectChanges();
+    TestBed.inject(HttpTestingController).expectOne('http://localhost:3000/auth/me')
+      .flush({ nombre, correo: 'usuario@empresa.com' });
     await fixture.whenStable();
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
+    expect(fixture.nativeElement.textContent).toContain(nombre);
+    expect(fixture.nativeElement.textContent).not.toContain('Administrador');
   });
 });
