@@ -3,11 +3,12 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../../../core/services/auth';
 import { Departamento } from '../../models/departamento.model';
+import { Organigrama } from '../../components/organigrama/organigrama';
 import { DepartamentoService, errorDepartamento } from '../../services/departamento.service';
 
 @Component({
   selector: 'app-departamentos',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, Organigrama],
   templateUrl: './departamentos.html',
   styleUrl: './departamentos.css',
 })
@@ -22,6 +23,7 @@ export class Departamentos implements OnInit {
   readonly errorForm = signal('');
   readonly mensaje = signal('');
   readonly busqueda = signal('');
+  readonly vista = signal<'organigrama' | 'tabla'>('organigrama');
   readonly formularioAbierto = signal(false);
   readonly editando = signal<Departamento | null>(null);
   readonly pendienteDesactivar = signal<Departamento | null>(null);

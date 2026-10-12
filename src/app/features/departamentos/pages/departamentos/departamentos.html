@@ -24,15 +24,28 @@
     </div>
   }
   <div class="panel">
+    <div class="view-switch" role="group" aria-label="Modo de visualización">
+      <button type="button" [class.primary]="vista() === 'organigrama'" [attr.aria-pressed]="vista() === 'organigrama'" (click)="vista.set('organigrama')">Organigrama</button>
+      <button type="button" [class.primary]="vista() === 'tabla'" [attr.aria-pressed]="vista() === 'tabla'" (click)="vista.set('tabla')">Tabla y administración</button>
+    </div>
     <label for="buscar-departamento">Buscar por nombre</label><input id="buscar-departamento" type="search" placeholder="Ej. Bodega" [value]="busqueda()" (input)="busqueda.set($any($event.target).value)">
     @if (loading()) {<p role="status">Cargando departamentos…</p>}
-    @else {
+    @else if (!error()) {
+      @if (!filtrados().length) {
+        <div class="empty-state" role="status"><h2>{{ busqueda() ? 'No encontramos ese departamento' : 'Todavía no hay departamentos' }}</h2>
+          <p>{{ busqueda() ? 'Prueba con otro nombre o limpia la búsqueda.' : 'Los departamentos aparecerán aquí cuando estén registrados.' }}</p>
+          @if (busqueda()) { <button type="button" (click)="busqueda.set('')">Limpiar búsqueda</button> }
+        </div>
+      } @else if (vista() === 'organigrama') {
+        <app-organigrama [departamentos]="filtrados()" />
+      } @else {
       <div class="table-scroll"><table><thead><tr><th>Departamento</th><th>Descripción</th><th>Puestos relacionados</th>@if (puedeEditar) {<th>Acciones</th>}</tr></thead>
       <tbody>@for (d of filtrados(); track d.idDepartamento) {<tr>
         <td><strong>{{ d.nombreDepartamento }}</strong></td><td>{{ d.descripcion || 'Sin descripción' }}</td>
         <td>@if (d.puestos?.length) {<details><summary>{{ puestosActivos(d) }} puestos activos</summary><ul>@for (p of d.puestos; track p.idPuesto) {<li>{{ p.nombrePuesto }} @if (!p.isActive) {<span class="muted">(inactivo)</span>}</li>}</ul></details>} @else {<span class="muted">Sin puestos registrados</span>}</td>
         @if (puedeEditar) {<td><div class="actions"><button [disabled]="saving()" (click)="abrir(d)">Editar</button><button class="danger" [disabled]="saving()" (click)="pendienteDesactivar.set(d)">Desactivar</button></div></td>}
       </tr>} @empty {<tr><td [attr.colspan]="puedeEditar ? 4 : 3">No hay departamentos que mostrar.</td></tr>}</tbody></table></div>
+      }
     }
   </div>
 </section>

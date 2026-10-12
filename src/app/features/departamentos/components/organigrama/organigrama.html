@@ -1,0 +1,31 @@
+<section aria-label="Organigrama de departamentos">
+  <p class="guide" id="organigrama-ayuda">Selecciona un departamento para ver sus puestos.</p>
+  <div class="viewport" tabindex="0" role="region" aria-label="Gráfico de la organización" aria-describedby="organigrama-ayuda">
+    <div class="tree">
+      <div class="company"><span>EMPRESA</span><strong>Intertornillos</strong><small>{{ departamentos().length }} {{ departamentos().length === 1 ? 'departamento' : 'departamentos' }}</small></div>
+      <ul class="branches">
+        @for (d of departamentos(); track d.idDepartamento) {
+          <li class="branch">
+            <details class="department">
+              <summary>
+                <span class="kind">DEPARTAMENTO</span>
+                <strong>{{ d.nombreDepartamento }}</strong>
+                @if (!d.isActive) { <span class="inactive">Inactivo</span> }
+                <span class="count">{{ d.puestos?.length ?? 0 }} {{ d.puestos?.length === 1 ? 'puesto' : 'puestos' }}</span>
+                <span class="toggle"><span class="closed-label">Mostrar puestos</span><span class="open-label">Ocultar puestos</span><span aria-hidden="true">⌄</span></span>
+              </summary>
+              <div class="department-content">
+                @if (d.descripcion) { <p class="description">{{ d.descripcion }}</p> }
+                <ul class="positions" [attr.aria-label]="'Puestos de ' + d.nombreDepartamento">
+                  @for (p of d.puestos; track p.idPuesto) {
+                    <li class="position"><span class="kind">PUESTO</span><strong>{{ p.nombrePuesto }}</strong><span class="status" [class.inactive]="!p.isActive">{{ p.isActive ? 'Activo' : 'Inactivo' }}</span></li>
+                  } @empty { <li class="empty">Sin puestos registrados.</li> }
+                </ul>
+              </div>
+            </details>
+          </li>
+        }
+      </ul>
+    </div>
+  </div>
+</section>

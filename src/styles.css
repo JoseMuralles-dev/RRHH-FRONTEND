@@ -1,1 +1,199 @@
-/* You can add global styles to this file, and also import other style files */
+/* Shared typography: native fonts keep the interface available without downloads. */
+:root {
+  --font-ui: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-heading: clamp(1.5rem, 1.25rem + 1vw, 1.875rem);
+
+  /* Colores globales: */
+
+  /* Texto */
+  --text-primary: #1f2937;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  --text-subtle: #6b7280;
+  --text-heading-color: #111827;
+  --text-body: #334155;
+  --text-strong: #1e293b;
+  --text-soft: #4b5563;
+  --text-disabled: #9ca3af;
+  --text-placeholder: #94a3b8;
+  --text-hint: #596577;
+  --text-inverse: #ffffff;
+  --text-soft-dark: #374151;
+
+  /* Fondos y superficies */
+  --surface: #ffffff;
+  --surface-page: #f5f6f8;
+  --surface-muted: #f8fafc;
+  --surface-subtle: #f9fafb;
+  --surface-neutral: #f1f5f9;
+  --surface-table: #f3f4f6;
+  --surface-disabled: #e5e7eb;
+
+  /* Bordes */
+  --border-default: #e5e7eb;
+  --border-subtle: #e2e8f0;
+  --border-control: #d1d5db;
+  --border-strong: #cbd5e1;
+  --border-panel: #dbe2ea;
+
+  /* Acciones, enlaces y foco */
+  --action-primary: #1d4ed8;
+  --action-neutral: #1f2937;
+  --action-neutral-hover: #374151;
+  --link-color: #1d4ed8;
+  --focus-ring: #2563eb;
+  --focus-ring-soft: #60a5fa;
+  --focus-ring-border: #93c5fd;
+  --action-on-primary: #ffffff;
+
+  /* Estados */
+  --success-text: #166534;
+  --success-bg: #dcfce7;
+  --success-text-strong: #065f46;
+  --success-bg-soft: #ecfdf5;
+  --danger-text: #991b1b;
+  --danger-strong: #b91c1c;
+  --danger-bg: #fee2e2;
+  --danger-bg-soft: #fef2f2;
+  --danger-border: #fecaca;
+  --warning-text: #92400e;
+  --warning-bg: #fffbeb;
+  --warning-bg-strong: #fef3c7;
+  --info-bg: #eff6ff;
+  --info-border: #bfdbfe;
+  --info-text: #1e3a8a;
+  --info-guide-border: #93b4e4;
+
+  /* Navegacion */
+  --sidebar-bg: var(--action-neutral);
+  --sidebar-text: #d1d5db;
+  --sidebar-muted: #b8c5d6;
+  --sidebar-hover: #374151;
+  --sidebar-active: #4b5563;
+  --overlay-bg: rgb(15 23 42 / 55%);
+
+  /* Graficas */
+  --chart-text: #172b4d;
+  --chart-primary: #0891b2;
+  --chart-secondary: #0d9488;
+  --chart-hover: #1e3a5f;
+  --chart-negative: #dc2626;
+  --chart-target: #d97706;
+  --chart-target-text: #b45309;
+  --chart-grid: #edf2f7;
+  --chart-accent-bg: #f0fdfa;
+  --chart-accent-text: #0f766e;
+
+  /* Acentos existentes de departamentos y organigrama */
+  --org-text: #233449;
+  --org-text-muted: #617185;
+  --org-text-action: #24465c;
+  --org-primary: #176f68;
+  --org-border: #dce3ea;
+  --org-input-border: #bfcbd7;
+  --org-button-border: #bbc9d5;
+  --org-table-border: #e2e8ee;
+  --org-table-bg: #f4f7fa;
+  --org-danger: #a22a31;
+  --org-warning-bg: #fff2ed;
+  --org-success-bg: #e9f5ee;
+  --org-success-text: #21653e;
+  --org-focus: #e5b444;
+  --org-line: #b9cbd9;
+  --org-node-border: #dbe3ec;
+
+  /* Acceso e inicio */
+  --login-bg: #f4f6f9;
+  --login-text-muted: #666;
+  --login-border: #ccc;
+  --login-action: #222;
+  --login-danger: #c62828;
+  --login-danger-bg: #fdecea;
+  --dashboard-accent-bg: #eef4fa;
+  --dashboard-accent-border: #dbe5ef;
+
+  /* Sombras */
+  --shadow-color-soft: rgba(0, 0, 0, 0.06);
+  --shadow-color-medium: rgba(0, 0, 0, 0.08);
+  --shadow-color-strong: rgba(0, 0, 0, 0.1);
+  --shadow-color-card: #0f172a0a;
+  --shadow-color-chart: #19365b06;
+  --shadow-color-primary: #1d4ed820;
+  --shadow-color-primary-soft: #1d4ed80a;
+}
+
+html { font-size: 100%; }
+.form-guide { padding: 14px 18px; background: var(--info-bg); border-left: 3px solid var(--info-guide-border); border-radius: 0 8px 8px 0; color: var(--text-body); font-size: .9375rem; line-height: 1.6; }
+.filter-panel { padding: 20px; margin-bottom: 20px; background: var(--surface); border: 1px solid var(--border-panel); border-radius: 10px; }
+.filter-panel label { display: block; margin-bottom: 8px; font-weight: 600; }
+.filter-controls { display: flex; flex-wrap: wrap; gap: 12px; }
+.filter-controls input { flex: 1 1 240px; min-width: 0; padding: 10px 12px; border: 1px solid var(--text-placeholder); border-radius: 6px; }
+.filter-panel .hint { margin: 10px 0 0; color: var(--text-secondary); font-size: .875rem; }
+.empty-state { padding: 28px; background: var(--surface); border: 1px dashed var(--border-strong); border-radius: 10px; }
+.empty-state h2 { margin: 0 0 8px; font-size: 1.125rem; }
+.empty-state p { margin: 0; color: var(--text-secondary); }
+:where(tbody tr):hover { background: var(--surface-muted); }
+:where(tbody tr):focus-within { background: var(--info-bg); }
+body {
+  font-family: var(--font-ui);
+  font-size: var(--text-base);
+  line-height: 1.5;
+  color: var(--text-primary);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+h1 { font-size: var(--text-heading); }
+h2 { font-size: 1.375rem; }
+h3 { font-size: 1.125rem; }
+h4, h5, h6 { font-size: 1rem; }
+
+input, select, textarea, button {
+  font: inherit;
+  letter-spacing: normal;
+}
+input, select, textarea { line-height: 1.5; }
+input::placeholder, textarea::placeholder { color: var(--text-muted); opacity: 1; }
+button, .btn-primary, .btn-secondary, .accion {
+  font-weight: 600;
+  line-height: 1.4;
+}
+label, dt { font-size: var(--text-sm); line-height: 1.5; }
+table { font-size: var(--text-sm); line-height: 1.5; }
+th { font-weight: 600; }
+td { font-variant-numeric: tabular-nums; }
+.hint, .ayuda, .subtitle, .welcome { line-height: 1.6; }
+.badge, .estado { font-weight: 600; line-height: 1.4; }
+
+/* Keyboard focus also covers screens without component-specific focus styles. */
+:is(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+}
+
+/* Base sizing keeps padding inside controls and cards. */
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; }
+app-root { display: block; min-width: 0; }
+img, video, canvas, svg { max-width: 100%; height: auto; }
+input, select, textarea, button { max-width: 100%; }
+fieldset { min-width: 0; }
+:where(h1, h2, h3, h4, p, a, label, dd) { overflow-wrap: anywhere; }
+:where(.page-header, .dashboard-header, .detail-header, .section-title, .series-header) { flex-wrap: wrap; gap: 16px; }
+:where(.actions, .acciones, .buttons, .pagination, .paginacion) { flex-wrap: wrap; }
+:where(.table-container, .table-scroll, .tabla, .series-table) { width: 100%; max-width: 100%; min-width: 0; overflow-x: auto; }
+:where(.card, .form-card, .panel, .grid > *, .form-grid > *, .grid-cards > *) { min-width: 0; }
+@media (max-width: 768px) {
+  :where(button, a.btn-primary, a.btn-secondary, a.accion, summary) { min-height: 44px; }
+  :where(input, select, textarea) { font-size: 16px; min-height: 44px; }
+}
+body:has(dialog.mobile-menu[open]) { overflow: hidden; }
+.table-container > table, .table-scroll > table, .tabla > table { min-width: 640px; }
+.series-table > table { min-width: 360px; }

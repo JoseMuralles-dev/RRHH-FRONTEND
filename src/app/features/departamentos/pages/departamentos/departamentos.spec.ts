@@ -1,3 +1,4 @@
+import { API } from '../../../../core/config/apis';
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
@@ -17,11 +18,11 @@ describe('CRUD de departamentos', () => {
     ] });
     http = TestBed.inject(HttpTestingController);
   });
-  afterEach(() => http.verify());
+  afterEach(() => { try { http.verify(); } finally { TestBed.resetTestingModule(); } });
   function abrir() {
     const fixture = TestBed.createComponent(Departamentos);
     fixture.detectChanges();
-    http.expectOne('http://localhost:3000/departamentos').flush([registro]);
+    http.expectOne(API.baseUrl + API.departamentos.base).flush([registro]);
     fixture.detectChanges();
     return { fixture, component: fixture.componentInstance };
   }
@@ -30,16 +31,52 @@ describe('CRUD de departamentos', () => {
     expect(fixture.nativeElement.textContent).toContain('Preparador');
     expect(fixture.nativeElement.textContent).toContain('Bodega');
   });
+  it('abre el organigrama y permite alternar a la tabla conservando la búsqueda', () => {
+    const { fixture, component } = abrir();
+    expect(fixture.nativeElement.querySelector('app-organigrama')).toBeTruthy();
+    component.busqueda.set('Bodega');
+    const botones = Array.from(fixture.nativeElement.querySelectorAll('.view-switch button')) as HTMLButtonElement[];
+    botones[1].click();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('table')).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('app-organigrama')).toBeNull();
+    expect(component.busqueda()).toBe('Bodega');
+    botones[0].click();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('app-organigrama summary').textContent).toContain('Bodega');
+  });
+
+  it('muestra ayuda cuando la búsqueda no coincide y permite restablecer el gráfico', () => {
+    const { fixture, component } = abrir();
+    component.busqueda.set('inexistente');
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('app-organigrama')).toBeNull();
+    fixture.nativeElement.querySelector('.empty-state button').click();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('app-organigrama')).toBeTruthy();
+  });
+
+  it('representa departamentos sin puestos y distingue puestos inactivos', () => {
+    const { fixture, component } = abrir();
+    component.departamentos.set([
+      { ...registro, puestos: [{ idPuesto: 10, nombrePuesto: 'Preparador', isActive: false }] },
+      { idDepartamento: 4, nombreDepartamento: 'Ventas', descripcion: null, isActive: true }
+    ]);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelectorAll('.branch').length).toBe(2);
+    expect(fixture.nativeElement.querySelector('.position .inactive').textContent).toContain('Inactivo');
+    expect(fixture.nativeElement.querySelector('.positions .empty').textContent).toContain('Sin puestos registrados');
+  });
   it('crea con los campos permitidos y recarga el listado', () => {
     const { component } = abrir();
     component.abrir();
     component.form.setValue({ nombreDepartamento: ' Ventas ', descripcion: ' Comercial ' });
     component.guardar(); component.guardar();
-    const req = http.expectOne('http://localhost:3000/departamentos');
+    const req = http.expectOne(API.baseUrl + API.departamentos.base);
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual({ nombreDepartamento: 'Ventas', descripcion: 'Comercial' });
     req.flush({ ...registro, idDepartamento: 4, nombreDepartamento: 'Ventas' });
-    http.expectOne('http://localhost:3000/departamentos').flush([]);
+    http.expectOne(API.baseUrl + API.departamentos.base).flush([]);
     expect(component.formularioAbierto()).toBe(false);
   });
   it('edita el departamento seleccionado', () => {
@@ -47,16 +84,16 @@ describe('CRUD de departamentos', () => {
     component.abrir(registro);
     component.form.patchValue({ nombreDepartamento: 'Bodega central' });
     component.guardar();
-    const req = http.expectOne('http://localhost:3000/departamentos/3');
+    const req = http.expectOne(API.baseUrl + API.departamentos.base + '/3');
     expect(req.request.method).toBe('PATCH');
     req.flush({ ...registro, nombreDepartamento: 'Bodega central' });
-    http.expectOne('http://localhost:3000/departamentos').flush([]);
+    http.expectOne(API.baseUrl + API.departamentos.base).flush([]);
   });
   it('muestra el conflicto cuando hay puestos activos al desactivar', () => {
     const { component } = abrir();
     component.pendienteDesactivar.set(registro);
     component.desactivar();
-    http.expectOne('http://localhost:3000/departamentos/3/desactivar')
+    http.expectOne(API.baseUrl + API.departamentos.base + '/3/desactivar')
       .flush({ message: 'Tiene puestos activos' }, { status: 409, statusText: 'Conflict' });
     expect(component.error()).toBe('Tiene puestos activos');
     expect(component.saving()).toBe(false);
