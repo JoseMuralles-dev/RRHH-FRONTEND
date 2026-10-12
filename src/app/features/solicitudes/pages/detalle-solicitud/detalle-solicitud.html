@@ -30,6 +30,7 @@
         </div>
       } @empty { <p>No hay información de aprobaciones.</p> }
     </section>
+    @if (puedeEditar()) { <a class="btn-primary" [routerLink]="['/solicitudes', id, 'editar']">Editar vacaciones pendientes</a> }
     @if (puedeResolver() || puedeCancelar()) {
       <section class="card" aria-label="Acciones disponibles">
         @if (puedeResolver()) {

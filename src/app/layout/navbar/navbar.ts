@@ -1,18 +1,21 @@
-import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { Component, DestroyRef, inject, signal, input, output } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth';
 import { API } from '../../core/config/apis';
+import { CampanaNotificacionesComponent } from '../../features/notificaciones/components/campana-notificaciones/campana-notificaciones.component';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [],
+  imports: [CampanaNotificacionesComponent],
   templateUrl: './navbar.html',
   styleUrl: './navbar.css'
 })
 export class NavbarComponent {
+  readonly menuOpen = input(false);
+  readonly menuToggle = output<void>();
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly http = inject(HttpClient);

@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, output } from '@angular/core';
+import { Component, computed, effect, inject, input, output } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CrearSolicitudRequest, TipoIncidencia } from '../../models/solicitud.model';
@@ -12,6 +12,8 @@ export class SolicitudForm {
   private readonly fb = inject(FormBuilder);
   readonly tipos = input.required<TipoIncidencia[]>();
   readonly saving = input(false);
+  readonly inicial = input<CrearSolicitudRequest | null>(null);
+  readonly textoEnviar = input('Enviar solicitud');
   readonly enviar = output<CrearSolicitudRequest>();
   readonly form = this.fb.group({
     idTipoIncidencia: this.fb.control<number | null>(null, [Validators.required, Validators.min(1)]),
@@ -23,6 +25,12 @@ export class SolicitudForm {
   readonly requierePeriodo = computed(() => this.tipos().find(t => t.idTipoIncidencia === this.valores().idTipoIncidencia)?.requierePeriodo === true);
   readonly dias = computed(() => diasLaborables(this.valores().fechaInicio ?? '', this.valores().fechaFin ?? ''));
 
+  constructor() {
+    effect(() => {
+      const inicial = this.inicial();
+      if (inicial) this.form.patchValue({ idTipoIncidencia: inicial.idTipoIncidencia, fechaInicio: inicial.fechaInicio ?? '', fechaFin: inicial.fechaFin ?? '', motivo: inicial.motivo });
+    });
+  }
   guardar() {
     if (this.saving()) return;
     this.form.markAllAsTouched();

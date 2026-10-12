@@ -1,8 +1,8 @@
 .sidebar {
   width: 240px;
   min-height: 100vh;
-  background: #1f2937;
-  color: white;
+  background: var(--sidebar-bg);
+  color: var(--text-inverse);
   padding: 20px;
   box-sizing: border-box;
 }
@@ -10,6 +10,7 @@
 .logo {
   margin-bottom: 35px;
 }
+.nav-section { margin: 18px 12px 2px; color: var(--sidebar-muted); font-size: .75rem; font-weight: 600; letter-spacing: .04em; }
 
 .logo h2 {
   margin: 0;
@@ -18,7 +19,7 @@
 
 .logo span {
   font-size: 13px;
-  color: #9ca3af;
+  color: var(--text-disabled);
 }
 
 nav {
@@ -28,19 +29,26 @@ nav {
 }
 
 nav a {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  line-height: 1.5;
   text-decoration: none;
-  color: #d1d5db;
+  color: var(--sidebar-text);
   padding: 10px 12px;
   border-radius: 6px;
   transition: 0.2s;
 }
 
 nav a:hover {
-  background: #374151;
-  color: white;
+  background: var(--sidebar-hover);
+  color: var(--text-inverse);
 }
 
 nav a.active {
-  background: #4b5563;
-  color: white;
-}
+  font-weight: 600;
+  background: var(--sidebar-active);
+  color: var(--text-inverse);
+}:host { display: block; }
+nav a:focus-visible { outline-color: var(--focus-ring-border); }
+nav a { min-height: 44px; display: flex; align-items: center; }
+@media (max-width: 1024px) { .sidebar { width: 100%; min-height: 0; padding: 20px 16px; } .logo { margin-bottom: 20px; } }

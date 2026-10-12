@@ -7,7 +7,7 @@ import { AuthService } from '../../../../core/services/auth';
 import { SolicitudEstado } from '../../components/solicitud-estado/solicitud-estado';
 import { Solicitud } from '../../models/solicitud.model';
 import { errorSolicitud, SolicitudService } from '../../services/solicitud.service';
-import { estaAbierta, nombreEmpleado, turnoDisponible } from '../../utils/solicitud-reglas';
+import { estaAbierta, nombreEmpleado, turnoDisponible, puedeEditarVacaciones } from '../../utils/solicitud-reglas';
 
 @Component({ selector: 'app-detalle-solicitud', imports: [RouterLink, ReactiveFormsModule, DatePipe, SolicitudEstado],
   templateUrl: './detalle-solicitud.html', styleUrl: './detalle-solicitud.css' })
@@ -30,9 +30,10 @@ export class DetalleSolicitud implements OnInit {
     return !!s && !!usuario && usuario.idEmpleado !== s.idEmpleado
       && turnoDisponible(s)?.idUsuarioAprobador === usuario.idUsuario;
   });
+  readonly puedeEditar = computed(() => { const s = this.solicitud(); return !!s && puedeEditarVacaciones(s, this.auth.getUsuarioSesion()?.idEmpleado); });
   readonly puedeCancelar = computed(() => {
     const s = this.solicitud(), usuario = this.auth.getUsuarioSesion();
-    return !!s && !!usuario && estaAbierta(s) && (s.idEmpleado === usuario.idEmpleado || usuario.nivelJerarquico >= 4);
+    return !!s && !!usuario && (estaAbierta(s) || (s.isActive && s.estado === 'APROBADA' && s.tipoIncidencia?.descuentaVacaciones === true)) && (s.idEmpleado === usuario.idEmpleado || usuario.nivelJerarquico >= 4);
   });
   ngOnInit() { this.cargar(); }
   cargar() {

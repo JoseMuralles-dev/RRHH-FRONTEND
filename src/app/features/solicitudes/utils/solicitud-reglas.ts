@@ -36,3 +36,8 @@ export function nombreEmpleado(solicitud: Solicitud): string {
   return e ? [e.primerNombre, e.segundoNombre, e.primerApellido, e.segundoApellido].filter(Boolean).join(' ')
     : `Empleado #${solicitud.idEmpleado}`;
 }
+
+export function puedeEditarVacaciones(s: Solicitud, idEmpleado: number | null | undefined): boolean {
+  return s.isActive && s.estado === 'PENDIENTE' && s.tipoIncidencia?.descuentaVacaciones === true
+    && s.idEmpleado === idEmpleado && !!s.aprobaciones?.length && s.aprobaciones.every(a => a.estado === 'PENDIENTE');
+}

@@ -1,10 +1,18 @@
 <div class="layout">
 
-  <app-sidebar></app-sidebar>
+  <app-sidebar class="desktop-sidebar"></app-sidebar>
+
+  <dialog #mobileMenu id="mobile-navigation" class="mobile-menu" aria-label="Menú principal"
+    (cancel)="closeMenu()" (click)="$event.target === mobileMenu && closeMenu()">
+    <div class="menu-panel">
+      <button type="button" class="menu-close" (click)="closeMenu()" autofocus>Cerrar menú ✕</button>
+      <app-sidebar (navigate)="closeMenu()"></app-sidebar>
+    </div>
+  </dialog>
 
   <div class="main-area">
 
-    <app-navbar></app-navbar>
+    <app-navbar [menuOpen]="menuOpen()" (menuToggle)="openMenu()"></app-navbar>
 
     <main class="content">
       <router-outlet></router-outlet>

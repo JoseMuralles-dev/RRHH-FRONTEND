@@ -1,20 +1,28 @@
-import { TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
-import { RouterTestingHarness } from '@angular/router/testing';
-import { of } from 'rxjs';
-import { SOLICITUDES_ROUTES } from '../../solicitudes.routes';
-import { SolicitudService } from '../../services/solicitud.service';
+﻿import { TestBed } from '@angular/core/testing';
+import { provideRouter, Router, ActivatedRoute, convertToParamMap } from '@angular/router';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
 import { AuthService } from '../../../../core/services/auth';
-
-describe('ActualizarSolicitud', () => {
-  it('opens the existing edit route as a detail/action page without inventing an update endpoint', async () => {
-    const detalle = vi.fn(() => of({ idSolicitud: 7, estado: 'CANCELADA', createdAt: '2026-09-17T12:00:00Z' }));
-    TestBed.configureTestingModule({ providers: [provideRouter([{ path: 'solicitudes', children: SOLICITUDES_ROUTES }]),
-      { provide: SolicitudService, useValue: { detalle } },
+import { ActualizarSolicitud } from './actualizar-solicitud';
+const data = { idSolicitud: 7, idEmpleado: 10, idTipoIncidencia: 1, estado: 'PENDIENTE', isActive: true, motivo: 'Descanso', fechaInicio: '2026-10-05', fechaFin: '2026-10-09', diasSolicitados: 5,
+  tipoIncidencia: { idTipoIncidencia: 1, nombre: 'Vacaciones', requierePeriodo: true, descuentaVacaciones: true },
+  aprobaciones: [{ idAprobacion: 1, estado: 'PENDIENTE' }] };
+describe('Actualizar vacaciones', () => {
+  let http: HttpTestingController;
+  function abrir(estado = 'PENDIENTE') {
+    TestBed.configureTestingModule({ imports: [ActualizarSolicitud], providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting(),
+      { provide: ActivatedRoute, useValue: { snapshot: { paramMap: convertToParamMap({ id: '7' }) } } },
       { provide: AuthService, useValue: { getUsuarioSesion: () => ({ idUsuario: 1, idEmpleado: 10, nivelJerarquico: 1 }) } }] });
-    const harness = await RouterTestingHarness.create('/solicitudes/7/editar');
-    expect(detalle).toHaveBeenCalledWith(7);
-    expect(harness.routeNativeElement?.textContent).toContain('no se pueden editar');
-    expect(harness.routeNativeElement?.textContent).toContain('Solicitud #7');
+    http = TestBed.inject(HttpTestingController); const f = TestBed.createComponent(ActualizarSolicitud);
+    http.expectOne('http://localhost:3000/solicitudes/7').flush({ ...data, estado }); f.detectChanges(); return f;
+  }
+  afterEach(() => http.verify());
+  it('bloquea vacaciones cerradas', () => { const f = abrir('CANCELADA'); expect(f.componentInstance.solicitud()).toBeNull(); expect(f.nativeElement.textContent).toContain('Solo puedes editar'); });
+  it('precarga el formulario y envía PATCH conservando el tipo', async () => {
+    const f = abrir(); await f.whenStable(); expect(f.nativeElement.querySelector('#inicio').value).toBe('2026-10-05');
+    const nav = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
+    f.componentInstance.guardar({ idTipoIncidencia: 99, motivo: 'Cambio', fechaInicio: '2026-10-05', fechaFin: '2026-10-08', diasSolicitados: 4 });
+    const req = http.expectOne('http://localhost:3000/solicitudes/7'); expect(req.request.method).toBe('PATCH'); expect(req.request.body.idTipoIncidencia).toBe(1);
+    req.flush(data); expect(nav).toHaveBeenCalledWith(['/solicitudes', 7]);
   });
 });

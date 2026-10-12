@@ -1,0 +1,130 @@
+<div class="notification-wrapper">
+
+  <button
+    type="button"
+    class="notification-button"
+    (click)="toggle()"
+    aria-label="Notificaciones"
+  >
+
+    <span class="bell">
+      🔔
+    </span>
+
+    <span
+      *ngIf="mostrarContador"
+      class="notification-badge"
+    >
+      {{ contadorTexto }}
+    </span>
+
+  </button>
+
+
+  <div
+    *ngIf="abierto"
+    class="notification-panel"
+  >
+
+    <div *ngIf="error" class="notification-state" role="alert">{{ error }}</div>
+
+    <div class="notification-header">
+
+      <div>
+        <h3>
+          Notificaciones
+        </h3>
+
+        <span>
+          {{ noLeidas }}
+          sin leer
+        </span>
+      </div>
+
+      <button
+        *ngIf="noLeidas > 0"
+        type="button"
+        class="mark-all"
+        (click)="marcarTodas()"
+        [disabled]="marcandoTodas || cargando"
+      >
+        Marcar todas como leídas
+      </button>
+
+    </div>
+
+
+    <div
+      *ngIf="cargando"
+      class="notification-state"
+    >
+      Cargando...
+    </div>
+
+
+    <div
+      *ngIf="
+        !cargando && !error && notificaciones.length === 0
+      "
+      class="notification-state"
+    >
+      No tienes notificaciones.
+    </div>
+
+
+    <div
+      *ngIf="
+        !cargando &&
+        notificaciones.length > 0
+      "
+      class="notification-list"
+    >
+
+      <button
+        *ngFor="
+          let notificacion
+          of notificaciones
+        "
+        type="button"
+        class="notification-item"
+        [class.unread]="
+          !notificacion.leida
+        "
+        (click)="
+          seleccionar(notificacion)
+        "
+      >
+
+        <div
+          class="notification-dot"
+          *ngIf="!notificacion.leida"
+        ></div>
+
+        <div
+          class="notification-content"
+        >
+
+          <strong>
+            {{ notificacion.titulo }}
+          </strong>
+
+          <p>
+            {{ notificacion.mensaje }}
+          </p>
+
+          <small>
+            {{
+              notificacion.createdAt
+                | date:'dd/MM/yyyy HH:mm'
+            }}
+          </small>
+
+        </div>
+
+      </button>
+
+    </div>
+
+  </div>
+
+</div>

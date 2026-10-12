@@ -12,7 +12,13 @@ export function errorSolicitud(error: unknown): string {
   if (error.status === 401) return 'Tu sesión venció. Inicia sesión nuevamente.';
   const mensaje: unknown = error.error?.message;
   if (Array.isArray(mensaje)) return mensaje.filter(m => typeof m === 'string').join('\n') || 'Revisa los datos enviados.';
-  if (typeof mensaje === 'string' && mensaje.trim()) return mensaje;
+  if (typeof mensaje === 'string' && mensaje.trim()) {
+    const incidencias: unknown = error.error?.incidencias;
+    const detalles = Array.isArray(incidencias)
+      ? incidencias.filter((item): item is string => typeof item === 'string' && !!item.trim())
+      : [];
+    return detalles.length ? mensaje + '. Detalle: ' + detalles.join('; ') : mensaje;
+  }
   if (error.status === 403) return 'No tienes permiso para esta acción o todavía no es tu turno.';
   if (error.status === 404) return 'No se encontró la solicitud o el tipo de incidencia.';
   return 'No se pudo completar la operación. Intenta nuevamente.';
@@ -41,6 +47,7 @@ export class SolicitudService {
   aprobadas() { return this.sesion(this.http.get<AprobacionConSolicitud[]>(`${API.baseUrl}${API.solicitudes.aprobadas}`)); }
   detalle(id: number) { return this.sesion(this.http.get<Solicitud>(`${this.url}/${id}`)); }
   crear(data: CrearSolicitudRequest) { return this.sesion(this.http.post<Solicitud>(this.url, data)); }
+  actualizar(id: number, data: CrearSolicitudRequest) { return this.sesion(this.http.patch<Solicitud>(`${this.url}/${id}`, data)); }
   aprobar(id: number, comentario: string) { return this.sesion(this.http.patch<Solicitud>(`${this.url}/${id}/aprobar`, { comentario })); }
   rechazar(id: number, comentario: string) { return this.sesion(this.http.patch<Solicitud>(`${this.url}/${id}/rechazar`, { comentario })); }
   cancelar(id: number) { return this.sesion(this.http.patch<Solicitud>(`${this.url}/${id}/cancelar`, null)); }

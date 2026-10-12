@@ -1,2 +1,9 @@
-<p class="hint">Los datos de una solicitud enviada no se pueden editar. Aquí puedes consultar el detalle y realizar las acciones disponibles para tu usuario.</p>
-<app-detalle-solicitud />
+﻿<section class="page-container">
+  <header class="page-header"><h1>Editar vacaciones #{{ id }}</h1><a [routerLink]="['/solicitudes', id]">Volver al detalle</a></header>
+  @if (loading()) { <p role="status">Cargando solicitud…</p> }
+  @if (error()) { <p class="error-box" role="alert">{{ error() }} <button [disabled]="loading() || saving()" (click)="cargar()">Actualizar detalle</button></p> }
+  @if (solicitud(); as s) {
+    <p class="hint">Se recalculará la reserva con las nuevas fechas. El tipo de incidencia se conserva.</p>
+    @if (s.tipoIncidencia; as tipo) { <app-solicitud-form [tipos]="[tipo]" [inicial]="s" [saving]="saving()" textoEnviar="Guardar cambios" (enviar)="guardar($event)" /> }
+  }
+</section>

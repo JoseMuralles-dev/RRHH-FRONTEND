@@ -1,8 +1,9 @@
 <form [formGroup]="form" (ngSubmit)="guardar()">
   <fieldset [disabled]="saving()">
     <legend class="sr-only">Datos de la solicitud</legend>
+    <p class="form-guide">Selecciona el tipo de solicitud y explica el motivo. Los campos con * son obligatorios.</p>
     <div class="form-group">
-      <label for="tipo">Tipo de incidencia *</label>
+      <label for="tipo">Tipo de solicitud *</label>
       <select id="tipo" formControlName="idTipoIncidencia">
         <option [ngValue]="null" disabled>Selecciona un tipo</option>
         @for (tipo of tipos(); track tipo.idTipoIncidencia) { <option [ngValue]="tipo.idTipoIncidencia">{{ tipo.nombre }}</option> }
@@ -24,9 +25,10 @@
     <p class="days" role="status">Días laborables: <strong>{{ dias() ?? '—' }}</strong></p>
     <p class="hint">Se cuentan lunes a viernes, incluyendo ambas fechas. Los feriados aún no se descuentan.</p>
     }
-    <div class="form-group"><label for="motivo">Motivo *</label><textarea id="motivo" rows="5" maxlength="1000" formControlName="motivo"></textarea>
+    <div class="form-group"><label for="motivo">Motivo *</label><textarea id="motivo" rows="5" maxlength="1000" formControlName="motivo" aria-describedby="motivo-ayuda" placeholder="Describe brevemente lo que necesitas solicitar."></textarea>
+      <p id="motivo-ayuda" class="hint">Incluye los detalles necesarios para revisar tu solicitud. Máximo 1000 caracteres.</p>
       @if (form.controls.motivo.touched && form.controls.motivo.invalid) { <p class="field-error">Escribe un motivo de hasta 1000 caracteres, no solo espacios.</p> }
     </div>
-    <button class="btn-primary" type="submit" [disabled]="saving()">{{ saving() ? 'Enviando...' : 'Enviar solicitud' }}</button>
+    <button class="btn-primary" type="submit" [disabled]="saving()">{{ saving() ? 'Guardando...' : textoEnviar() }}</button>
   </fieldset>
 </form>

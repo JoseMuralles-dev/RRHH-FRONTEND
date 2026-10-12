@@ -1,12 +1,18 @@
 <header class="navbar">
 
-  <div>
+  <div class="navbar-brand">
+    <button type="button" class="menu-toggle" aria-label="Abrir menú principal"
+      aria-controls="mobile-navigation" [attr.aria-expanded]="menuOpen()" (click)="menuToggle.emit()">☰</button>
     <h3>Sistema de Recursos Humanos</h3>
   </div>
 
   <div class="navbar-actions">
 
     <span aria-live="polite">{{ nombre() }}</span>
+    <app-campana-notificaciones />
+
+    <!-- usuario/logout/etc -->
+
 
     <button
       type="button"
