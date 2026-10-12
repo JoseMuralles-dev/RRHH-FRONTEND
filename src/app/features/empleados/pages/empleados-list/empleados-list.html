@@ -1,47 +1,38 @@
-<section class="page-container">
+<section class="directory-page">
   <header class="page-header">
-    <div><h1>Empleados</h1><p>Consulta y administración de empleados activos</p></div>
-    @if (puedeEditar) { <a class="btn-primary" routerLink="/empleados/nuevo">Nuevo empleado</a> }
+    <div><span class="eyebrow">NUESTRO EQUIPO</span><h1>Empleados</h1><p>Conoce a las personas que forman parte de la organización.</p></div>
+    @if (puedeEditar) { <a class="primary" routerLink="/empleados/nuevo">+ Nuevo empleado</a> }
   </header>
-  <div class="card">
-    <label for="buscar-empleado">Buscar por nombre, apellido o DPI</label>
-    <div class="search">
-      <input id="buscar-empleado" type="search" [formControl]="busqueda" placeholder="Escribe para buscar">
-      @if (busqueda.value) { <button type="button" (click)="busqueda.setValue('')">Limpiar</button> }
-    </div>
-    @if (busqueda.value.trim()) { <p class="hint">La búsqueda muestra hasta 20 coincidencias.</p> }
-  </div>
   @if (aviso()) { <p class="success" role="status">{{ aviso() }}</p> }
-  @if (error()) {
-    <div class="error-box" role="alert">{{ error() }} <button type="button" (click)="reintentar()">Reintentar</button></div>
-  } @else if (loading()) {
-    <p role="status">Cargando empleados...</p>
-  } @else if (!empleados().length) {
-    <p role="status">{{ busqueda.value.trim() ? 'No hay resultados para esta búsqueda.' : 'No hay empleados activos para mostrar.' }}</p>
-  } @else {
-    <div class="table-container">
-      <table>
-        <thead><tr><th>Nombre completo</th><th>DPI</th><th>Puesto</th><th>Departamento</th><th>Teléfono</th><th>Acciones</th></tr></thead>
-        <tbody>
-          @for (empleado of empleados(); track empleado.idEmpleado) {
-            <tr>
-              <td>{{ nombre(empleado) }}</td><td>{{ empleado.dpi }}</td>
-              <td>{{ empleado.puesto?.nombrePuesto || 'Sin información' }}</td>
-              <td>{{ empleado.puesto?.departamento?.nombreDepartamento || 'Sin información' }}</td>
-              <td>{{ empleado.telefono || 'Sin teléfono' }}</td>
-              <td><div class="actions">
-                <a [routerLink]="['/empleados', empleado.idEmpleado]">Detalle</a>
-                @if (puedeEditar) {
-                  <a [routerLink]="['/empleados', empleado.idEmpleado, 'editar']">Editar</a>
-                  <button type="button" class="danger" [disabled]="desactivando() !== null" (click)="desactivar(empleado)">
-                    {{ desactivando() === empleado.idEmpleado ? 'Desactivando...' : 'Desactivar' }}
-                  </button>
-                }
-              </div></td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    </div>
-  }
+  <div class="directory-layout">
+    <aside class="directory" aria-label="Directorio de empleados">
+      <div class="directory-heading"><h2>Directorio</h2><span class="count">{{ empleados().length }}</span></div>
+      <div class="search-area">
+        <label for="buscar-empleado">Buscar por nombre, apellido o DPI</label>
+        <div class="search"><input id="buscar-empleado" type="search" [formControl]="busqueda" placeholder="Buscar una persona…">
+          @if (busqueda.value) { <button type="button" (click)="busqueda.setValue('')" aria-label="Limpiar búsqueda">×</button> }
+        </div>
+        @if (busqueda.value.trim()) { <p class="hint">Hasta 20 coincidencias.</p> }
+      </div>
+      <div class="employee-list" [attr.aria-busy]="loading()">
+        @if (error()) { <div class="message error" role="alert">{{ error() }} <button type="button" (click)="reintentar()">Reintentar</button></div> }
+        @else if (loading()) { <p class="message" role="status">Cargando empleados…</p> }
+        @else {
+          @for (e of empleados(); track e.idEmpleado) {
+            <button type="button" class="employee-row" [class.selected]="seleccionado() === e.idEmpleado" [attr.aria-pressed]="seleccionado() === e.idEmpleado" aria-controls="perfil-empleado" (click)="seleccionar(e)">
+              <span class="small-avatar" [class.alternate]="e.idEmpleado % 2 === 0" aria-hidden="true">{{ iniciales(e) }}</span>
+              <span class="employee-copy"><strong>{{ nombre(e) }}</strong><span>{{ e.puesto?.nombrePuesto || 'Puesto sin información' }}</span><small>{{ e.puesto?.departamento?.nombreDepartamento || 'Sin departamento' }}</small></span>
+              <span class="row-arrow" aria-hidden="true">›</span>
+            </button>
+          } @empty { <p class="message" role="status">{{ busqueda.value.trim() ? 'No hay resultados para esta búsqueda.' : 'No hay empleados activos para mostrar.' }}</p> }
+        }
+      </div>
+    </aside>
+    <section id="perfil-empleado" class="profile-panel" aria-label="Perfil del empleado" [attr.aria-busy]="cargandoPerfil()">
+      @if (cargandoPerfil()) { <div class="profile-placeholder" role="status"><span class="placeholder-icon" aria-hidden="true">…</span><h2>Cargando perfil</h2><p>Consultando la ficha del empleado.</p></div> }
+      @else if (errorPerfil()) { <div class="profile-placeholder error" role="alert"><h2>No se pudo cargar el perfil</h2><p>{{ errorPerfil() }}</p><button type="button" (click)="reintentarPerfil()">Reintentar</button></div> }
+      @else if (perfil(); as e) { <app-empleado-perfil [empleado]="e" [puedeEditar]="puedeEditar" [desactivando]="desactivando() !== null" (desactivar)="desactivar($event)" /> }
+      @else { <div class="profile-placeholder"><span class="placeholder-icon" aria-hidden="true">◎</span><span class="eyebrow">CADA PERSONA TIENE SU HISTORIA</span><h2>Conoce a tu equipo</h2><p>Selecciona a una persona del directorio para consultar su perfil y sus datos laborales.</p><span class="placeholder-footer">Toda su información, en un solo lugar.</span></div> }
+    </section>
+  </div>
 </section>

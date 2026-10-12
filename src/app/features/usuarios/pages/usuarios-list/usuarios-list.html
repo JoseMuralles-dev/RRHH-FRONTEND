@@ -21,17 +21,33 @@
 
   @if (loading()) {
 
-    <div class="message">
+    <div class="message" role="status">
       Cargando usuarios...
     </div>
 
   } @else if (errorMessage()) {
 
-    <div class="error-box">
+    <div class="error-box" role="alert">
       {{ errorMessage() }}
+      <button type="button" (click)="cargarUsuarios()">Volver a intentar</button>
     </div>
 
   } @else {
+
+    <div class="filter-panel">
+      <label for="buscar-usuario">Buscar usuario</label>
+      <div class="filter-controls">
+        <input #buscarUsuario id="buscar-usuario" type="search" placeholder="Nombre, correo o rol"
+          [value]="busqueda()" (input)="busqueda.set(buscarUsuario.value)">
+        @if (busqueda()) { <button type="button" (click)="busqueda.set('')">Limpiar búsqueda</button> }
+      </div>
+      <p class="hint" role="status">{{ usuariosVisibles().length }} de {{ usuarios().length }} usuarios</p>
+    </div>
+    @if (!usuariosVisibles().length) {
+      <div class="empty-state" role="status"><h2>{{ busqueda() ? 'No encontramos coincidencias' : 'Todavía no hay usuarios' }}</h2>
+        <p>{{ busqueda() ? 'Prueba con otro nombre, correo o rol, o limpia la búsqueda.' : 'Selecciona Nuevo usuario para crear el primer acceso.' }}</p>
+      </div>
+    } @else {
 
     <div class="table-container">
 
@@ -53,7 +69,7 @@
         <tbody>
 
           @for (
-            usuario of usuarios();
+            usuario of usuariosVisibles();
             track usuario.idUsuario
           ) {
 
@@ -130,7 +146,7 @@
                     'cambiar-password'
                   ]"
                 >
-                  Contraseña
+                  Cambiar contraseña
                 </button>
 
                 @if (
@@ -160,6 +176,7 @@
 
     </div>
 
+    }
   }
 
 </div>

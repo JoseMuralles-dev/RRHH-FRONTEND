@@ -1,9 +1,10 @@
-import { Injectable } from '@angular/core';
+﻿import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
+import { API } from '../config/apis';
 
 interface LoginRequest {
-  username: string;
+  correo: string;
   password: string;
 }
 
@@ -16,7 +17,8 @@ interface LoginResponse {
 })
 export class AuthService {
 
-  private readonly apiUrl = 'http://localhost:3000/auth';
+  private readonly apiUrl = `${API.baseUrl}${API.auth.login}`;
+  
 
   constructor(
     private http: HttpClient
@@ -26,7 +28,7 @@ export class AuthService {
 
     return this.http
       .post<LoginResponse>(
-        `${this.apiUrl}/login`,
+        this.apiUrl,
         data
       )
       .pipe(
@@ -91,3 +93,4 @@ export class AuthService {
   }
 
 }
+

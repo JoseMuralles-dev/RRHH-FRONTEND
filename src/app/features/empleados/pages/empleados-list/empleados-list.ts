@@ -2,13 +2,14 @@ import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { catchError, map, merge, of, startWith, Subject, switchMap, timer } from 'rxjs';
+import { catchError, map, merge, of, startWith, Subject, Subscription, switchMap, timer } from 'rxjs';
+import { EmpleadoPerfil } from '../../components/empleado-perfil/empleado-perfil';
 import { AuthService } from '../../../../core/services/auth';
 import { Empleado, nombreCompleto } from '../../models/empleado.model';
 import { EmpleadoService, mensajeError } from '../../services/empleado.service';
 
 @Component({
-  selector: 'app-empleados-list', imports: [RouterLink, ReactiveFormsModule],
+  selector: 'app-empleados-list', imports: [RouterLink, ReactiveFormsModule, EmpleadoPerfil],
   templateUrl: './empleados-list.html', styleUrl: './empleados-list.css',
 })
 export class EmpleadosList {
@@ -23,6 +24,35 @@ export class EmpleadosList {
   readonly aviso = signal('');
   readonly desactivando = signal<number | null>(null);
   readonly nombre = nombreCompleto;
+  readonly seleccionado = signal<number | null>(null);
+  readonly perfil = signal<Empleado | null>(null);
+  readonly cargandoPerfil = signal(false);
+  readonly errorPerfil = signal('');
+  private consultaPerfil?: Subscription;
+  iniciales(e: Empleado) { return ((e.primerNombre?.[0] ?? '') + (e.primerApellido?.[0] ?? '')).toUpperCase(); }
+
+  seleccionar(empleado: Empleado) {
+    if (this.seleccionado() === empleado.idEmpleado && !this.errorPerfil()) return;
+    this.cargarPerfil(empleado.idEmpleado);
+  }
+  reintentarPerfil() {
+    const id = this.seleccionado();
+    if (id !== null) this.cargarPerfil(id);
+  }
+  private limpiarPerfil() {
+    this.consultaPerfil?.unsubscribe();
+    this.seleccionado.set(null); this.perfil.set(null);
+    this.errorPerfil.set(''); this.cargandoPerfil.set(false);
+  }
+  private cargarPerfil(id: number) {
+    this.consultaPerfil?.unsubscribe();
+    this.seleccionado.set(id); this.perfil.set(null);
+    this.errorPerfil.set(''); this.cargandoPerfil.set(true);
+    this.consultaPerfil = this.service.obtener(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: empleado => { this.perfil.set(empleado); this.cargandoPerfil.set(false); },
+      error: error => { this.errorPerfil.set(mensajeError(error)); this.cargandoPerfil.set(false); },
+    });
+  }
   get puedeEditar() { return this.auth.getNivelJerarquico() >= 3; }
 
   constructor() {
@@ -43,6 +73,7 @@ export class EmpleadosList {
       }),
       takeUntilDestroyed(),
     ).subscribe(result => {
+      if (!result.empleados.some(e => e.idEmpleado === this.seleccionado())) this.limpiarPerfil();
       this.empleados.set(result.empleados);
       this.error.set(result.error);
       this.loading.set(false);
@@ -59,6 +90,7 @@ export class EmpleadosList {
     this.aviso.set('');
     this.service.desactivar(empleado.idEmpleado).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
+        if (this.seleccionado() === empleado.idEmpleado) this.limpiarPerfil();
         this.desactivando.set(null);
         this.aviso.set('Empleado desactivado. Su usuario asociado no fue modificado.');
         this.recargar.next();

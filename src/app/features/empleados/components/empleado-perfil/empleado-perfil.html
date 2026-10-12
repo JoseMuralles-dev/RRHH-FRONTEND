@@ -1,0 +1,45 @@
+@let e = empleado();
+<article aria-labelledby="nombre-perfil">
+  <div class="cover" aria-hidden="true"><span>PERSONAS · EQUIPO · TALENTO</span></div>
+  <header class="identity">
+    <div class="avatar" aria-hidden="true">{{ iniciales(e) }}</div>
+    <div class="identity-top"><span class="status" [class.inactive]="e.isActive === false">{{ e.isActive === false ? 'Inactivo' : 'Activo' }}</span><span class="employee-id">Empleado #{{ e.idEmpleado }}</span></div>
+    <h2 id="nombre-perfil">{{ nombre(e) }}</h2>
+    <p class="job">{{ e.puesto?.nombrePuesto || 'Puesto sin información' }}</p>
+    <p class="department">{{ e.puesto?.departamento?.nombreDepartamento || 'Departamento sin información' }}</p>
+    <div class="profile-actions">
+      @if (puedeEditar()) {
+        <a class="primary" [routerLink]="['/empleados', e.idEmpleado, 'editar']">Editar perfil</a>
+        <a [routerLink]="['/expedientes/empleado', e.idEmpleado]">Ver expediente</a>
+      }
+      <a [routerLink]="['/empleados', e.idEmpleado]">Abrir ficha completa ↗</a>
+    </div>
+  </header>
+  <div class="profile-body">
+    <section class="info-section"><h3><span aria-hidden="true">01</span> Contacto</h3>
+      <dl>
+        <div><dt>Teléfono</dt><dd>{{ e.telefono || 'Sin teléfono registrado' }}</dd></div>
+        <div><dt>Correo del usuario</dt><dd>{{ e.usuario?.correo || 'Sin usuario asociado' }}</dd></div>
+        <div class="wide"><dt>Dirección</dt><dd>{{ e.direccion || 'Sin dirección registrada' }}</dd></div>
+      </dl>
+    </section>
+    <section class="info-section"><h3><span aria-hidden="true">02</span> Información laboral</h3>
+      <dl>
+        <div><dt>Fecha de ingreso</dt><dd>{{ (e.fechaIngreso | date:'dd/MM/yyyy':'UTC') || 'Sin información' }}</dd></div>
+        <div><dt>Jefe directo</dt><dd>{{ e.jefeDirecto ? nombre(e.jefeDirecto) : (e.idJefeDirecto ? 'Empleado #' + e.idJefeDirecto : 'Sin jefe directo') }}</dd></div>
+        <div><dt>Código SAP</dt><dd>{{ e.codigoSapEmpleado ?? 'Sin código' }}</dd></div>
+        <div><dt>Sueldo actual</dt><dd>{{ e.sueldoActual || 'Sin información' }}</dd></div>
+      </dl>
+    </section>
+    <section class="info-section"><h3><span aria-hidden="true">03</span> Datos personales</h3>
+      <dl>
+        <div><dt>DPI</dt><dd>{{ e.dpi || 'Sin información' }}</dd></div>
+        <div><dt>IGSS</dt><dd>{{ e.igss || 'Sin información' }}</dd></div>
+        <div><dt>Fecha de nacimiento</dt><dd>{{ (e.fechaNacimiento | date:'dd/MM/yyyy':'UTC') || 'Sin información' }}</dd></div>
+      </dl>
+    </section>
+    @if (puedeEditar()) {
+      <footer><p>Administración del empleado</p><button class="danger" type="button" [disabled]="desactivando()" (click)="desactivar.emit(e)">{{ desactivando() ? 'Desactivando…' : 'Desactivar empleado' }}</button></footer>
+    }
+  </div>
+</article>

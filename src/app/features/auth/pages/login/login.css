@@ -9,7 +9,7 @@
   justify-content: center;
   align-items: center;
 
-  background: #f4f6f9;
+  background: var(--login-bg);
 }
 
 .login-card {
@@ -17,16 +17,17 @@
 
   padding: 40px;
 
-  background: white;
+  background: var(--surface);
 
   border-radius: 10px;
 
   box-shadow:
     0 4px 15px
-    rgba(0, 0, 0, 0.1);
+    var(--shadow-color-strong);
 }
 
 .login-card h1 {
+  margin-top: 0;
   margin-bottom: 5px;
 
   text-align: center;
@@ -37,7 +38,7 @@
 
   text-align: center;
 
-  color: #666;
+  color: var(--login-text-muted);
 }
 
 .form-group {
@@ -50,6 +51,7 @@ label {
   margin-bottom: 6px;
 
   font-weight: 500;
+  color: var(--text-primary);
 }
 
 input {
@@ -59,15 +61,15 @@ input {
 
   padding: 10px 12px;
 
-  border: 1px solid #ccc;
+  border: 1px solid var(--login-border);
 
   border-radius: 5px;
 }
 
 input:focus {
-  outline: none;
-
-  border-color: #555;
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+  border-color: var(--focus-ring);
 }
 
 button {
@@ -81,9 +83,9 @@ button {
 
   cursor: pointer;
 
-  background: #222;
+  background: var(--login-action);
 
-  color: white;
+  color: var(--text-inverse);
 
   font-size: 15px;
 }
@@ -99,9 +101,9 @@ button:disabled {
 
   margin-top: 5px;
 
-  color: #c62828;
+  color: var(--login-danger);
 
-  font-size: 12px;
+  font-size: var(--text-sm);
 }
 
 .login-error {
@@ -111,7 +113,10 @@ button:disabled {
 
   border-radius: 5px;
 
-  background: #fdecea;
+  background: var(--login-danger-bg);
 
-  color: #c62828;
-}
+  color: var(--login-danger);
+}.login-container { height: auto; min-height: 100dvh; padding: 24px 16px; }
+.login-card { width: 460px; max-width: 100%; }
+@media (max-width: 576px) { .login-card { padding: 24px; } }
+@media (max-width: 768px) { input { font-size: 16px; } }

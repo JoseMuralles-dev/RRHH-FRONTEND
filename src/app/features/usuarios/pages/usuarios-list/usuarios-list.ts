@@ -1,7 +1,8 @@
 import {
   Component,
   OnInit,
-  signal
+  signal,
+  computed
 } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
@@ -34,6 +35,15 @@ export class UsuariosList
   implements OnInit {
 
   readonly usuarios = signal<Usuario[]>([]);
+  readonly busqueda = signal('');
+  readonly usuariosVisibles = computed(() => {
+    const normalizar = (texto: string) => texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    const consulta = normalizar(this.busqueda().trim());
+    return this.usuarios().filter(usuario => normalizar([
+      usuario.correo, usuario.empleado?.primerNombre, usuario.empleado?.primerApellido,
+      usuario.rol?.nombreRol
+    ].filter(Boolean).join(' ')).includes(consulta));
+  });
 
   readonly loading = signal(true);
 

@@ -1,3 +1,4 @@
+﻿import { HttpErrorResponse } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
@@ -83,14 +84,21 @@ export class LoginComponent {
 
         },
 
-        error: (error) => {
+        error: (error: unknown) => {
 
-          console.error(error);
+
 
           this.loading = false;
 
-          this.errorMessage =
-            'Usuario o contraseña incorrectos';
+          this.errorMessage = error instanceof HttpErrorResponse
+            ? error.status === 0
+              ? 'No se pudo conectar con el servidor. Revisa el túnel del backend y CORS.'
+              : error.status === 401
+                ? 'Acceso rechazado. Revisa tus credenciales y el acceso al túnel del backend.'
+                : error.status === 400
+                  ? 'Revisa el correo y la contraseña ingresados.'
+                  : 'No se pudo iniciar sesión. Revisa la disponibilidad y el acceso al backend.'
+            : 'Ocurrió un error inesperado al iniciar sesión.';
 
         }
 
@@ -99,3 +107,4 @@ export class LoginComponent {
   }
 
 }
+
