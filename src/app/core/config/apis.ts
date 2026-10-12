@@ -1,6 +1,6 @@
 
 export const API = {
-  baseUrl: 'http://localhost:3000',
+  baseUrl: 'https://5358p146-3000.use.devtunnels.ms',
 
   auth: {
     login: '/auth/login'
@@ -34,10 +34,28 @@ export const API = {
     pendientes: '/solicitudes/pendientes-aprobacion',
     aprobadas: '/solicitudes/aprobadas',
   },
+  expedientes: {
+    base: '/expedientes',
+    // Habilitar solo cuando las rutas protegidas est?n implementadas en el backend.
+    capacidades: { descargar: true, previsualizar: true, editar: false, eliminar: false },
+  },
+  vacaciones: { base: '/vacaciones' },
   kpi: {
 
       miDashboard: '/kpi/mi-dashboard',
       miEquipo: '/kpi/mi-equipo'
 
-  }
+  },
+  notificaciones: {
+    mias: `/notificaciones/mias`,
+
+    noLeidas:
+    `/notificaciones/no-leidas/count`,
+
+    marcarLeida: (id: number) =>
+    `/notificaciones/${id}/leida`,
+
+  marcarTodas:
+    `/notificaciones/marcar-todas/leidas`,
+},
 };

@@ -1,0 +1,15 @@
+﻿<section class="page-container"><header class="page-header"><div><span class="eyebrow">EXPEDIENTE #{{ idExpediente }}</span><h1>Subir documento</h1><p>Adjunta documentación al expediente del empleado #{{ idEmpleado }}.</p></div><a [routerLink]="idEmpleado > 0 ? ['/expedientes/empleado', idEmpleado] : ['/expedientes']">Volver al expediente</a></header>
+  @if (loading()) { <p class="empty" role="status">Preparando formulario…</p> }
+  @if (error()) { <p class="error-box" role="alert">{{ error() }} @if (!verificado()) { <button type="button" [disabled]="saving() || loading()" (click)="cargar()">Reintentar</button> }</p> }
+  @if (success()) { <p class="success" role="status">{{ success() }}</p> }
+  @if (verificado() && !loading()) {
+    @if (!tipos().length) { <p class="empty">No hay tipos de documento activos. RRHH debe configurar el catálogo antes de cargar archivos.</p> }
+    @else { <form class="card" [formGroup]="form" (ngSubmit)="guardar()"><fieldset [disabled]="saving()"><legend class="sr-only">Datos del documento</legend><div class="form-grid">
+      <div class="wide"><label for="tipo-documento">Tipo de documento *</label><select id="tipo-documento" formControlName="idTipoDocumento"><option [ngValue]="null">Selecciona un tipo</option>@for (tipo of tipos(); track tipo.idTipoDocumento) { <option [ngValue]="tipo.idTipoDocumento">{{ tipo.nombre }}{{ tipo.esObligatorio ? ' · Obligatorio' : '' }}</option> }</select>@if (form.controls.idTipoDocumento.touched && form.controls.idTipoDocumento.invalid) { <span class="field-error">Selecciona un tipo.</span> }</div>
+      <div class="wide"><label for="archivo">Archivo *</label><input id="archivo" type="file" accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png" (change)="seleccionarArchivo($event)"><p class="hint">PDF, JPG, JPEG o PNG. Máximo 10 MB.</p>@if (archivo(); as file) { <p class="filename">{{ file.name }} · {{ tamano(file.size) }} · {{ file.type }}</p> }@if (errorArchivo()) { <p class="field-error" role="alert">{{ errorArchivo() }}</p> }</div>
+      <div><label for="fecha-documento">Fecha del documento</label><input id="fecha-documento" type="date" formControlName="fechaDocumento"></div>
+      <div><label for="fecha-vencimiento">Fecha de vencimiento {{ requiereVencimiento() ? '*' : '' }}</label><input id="fecha-vencimiento" type="date" formControlName="fechaVencimiento" [attr.aria-required]="requiereVencimiento()">@if (form.controls.fechaVencimiento.touched && form.controls.fechaVencimiento.invalid) { <p class="field-error">Este tipo requiere fecha de vencimiento.</p> }</div>
+      <div class="wide"><label for="observaciones">Observaciones</label><textarea id="observaciones" rows="4" formControlName="observaciones" maxlength="5000"></textarea><p class="hint">Hasta 5000 caracteres.</p></div>
+    </div><div class="actions"><button class="btn-primary" type="submit" [disabled]="saving()">{{ saving() ? 'Subiendo documento…' : 'Guardar documento' }}</button></div></fieldset></form> }
+  }
+</section>

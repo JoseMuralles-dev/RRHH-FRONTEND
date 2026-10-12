@@ -1,0 +1,12 @@
+﻿<article class="card">
+  <header class="page-header"><div><span class="eyebrow">{{ documento().mimeType === 'application/pdf' ? 'PDF' : documento().mimeType?.startsWith('image/') ? 'IMAGEN' : 'ARCHIVO' }}</span><h3>{{ documento().tipoDocumento?.nombre || ('Tipo #' + documento().idTipoDocumento) }}</h3></div>
+    <span class="badge" [class.vencido]="vencimiento(documento()) === 'VENCIDO'" [class.proximo]="vencimiento(documento()) === 'PROXIMO'" [class.vigente]="vencimiento(documento()) === 'VIGENTE'">{{ etiqueta[vencimiento(documento())] }}</span>
+  </header>
+  <p class="filename">{{ documento().nombreOriginal }}</p>
+  <dl class="metadata"><div><dt>Fecha del documento</dt><dd>{{ (documento().fechaDocumento | date:'dd/MM/yyyy':'UTC') || 'No registrada' }}</dd></div><div><dt>Vencimiento</dt><dd>{{ (documento().fechaVencimiento | date:'dd/MM/yyyy':'UTC') || 'No registrado' }}</dd></div><div><dt>Estado registrado</dt><dd>{{ documento().estado }}</dd></div><div><dt>Tamaño</dt><dd>{{ tamano(documento().tamanoBytes) }}</dd></div></dl>
+  @if (documento().observaciones) { <p class="multiline">{{ documento().observaciones }}</p> }
+  <details><summary>Más información</summary><p>MIME: {{ documento().mimeType || 'No informado' }}</p><p>Cargado: {{ documento().createdAt | date:'dd/MM/yyyy HH:mm':'-0600' }}</p></details>
+  <div class="actions"><button type="button" [disabled]="ocupado() || !disponiblePrevisualizacion() || !puedePrevisualizar()" (click)="previsualizar.emit(documento())">Previsualizar</button><button type="button" [disabled]="ocupado() || !disponibleDescarga()" [title]="disponibleDescarga() ? 'Descargar documento' : 'Descarga aún no disponible'" (click)="descargar.emit(documento())">Descargar</button>
+    @if (administrar()) { <button type="button" [disabled]="ocupado() || !disponibleEdicion()" title="Editar metadata" (click)="editar.emit(documento())">Editar</button><button type="button" class="danger" [disabled]="ocupado() || !disponibleEliminar()" title="Desactivar documento" (click)="eliminar.emit(documento())">Desactivar</button> }
+  </div>
+</article>

@@ -1,0 +1,42 @@
+﻿<section class="page-container">
+  <header class="page-header"><div><span class="eyebrow">EXPEDIENTE DIGITAL</span><h1>{{ nombre() || 'Documentación del empleado' }}</h1></div><a routerLink="/expedientes">Volver a empleados</a></header>
+  @if (aviso()) { <p class="success" role="status">{{ aviso() }}</p> }
+  @if (error()) { <p class="error-box" role="alert">{{ error() }} <button [disabled]="loading() || saving() || ocupado() !== null" (click)="cargar()">Reintentar consulta</button></p> }
+  @if (loading()) { <p class="empty" role="status">Cargando expediente…</p> }
+  @else if (noExiste()) {
+    <section class="card"><h2>Sin expediente activo</h2><p>Este empleado todavía no tiene un expediente activo. Si existe uno inactivo, RRHH debe revisar su situación antes de crear otro.</p>
+      @if (administrar) { <form [formGroup]="crearForm" (ngSubmit)="crear()"><fieldset [disabled]="saving()"><div class="form-grid"><label>Fecha de apertura<input type="date" formControlName="fechaApertura"></label><label>Observaciones<textarea rows="3" maxlength="5000" formControlName="observaciones"></textarea></label></div><div class="actions"><button class="btn-primary" type="submit">{{ saving() ? 'Creando…' : 'Crear expediente' }}</button></div></fieldset></form> }
+    </section>
+  }
+  @else if (expediente(); as e) {
+    <section class="card"><dl class="metadata"><div><dt>Expediente</dt><dd>#{{ e.idExpediente }}</dd></div><div><dt>Fecha de apertura</dt><dd>{{ e.fechaApertura | date:'dd/MM/yyyy':'UTC' }}</dd></div><div><dt>Estado registrado</dt><dd>{{ e.estado }}</dd></div><div><dt>Empleado</dt><dd>#{{ e.idEmpleado }}</dd></div></dl>@if (e.observaciones) { <p class="multiline">{{ e.observaciones }}</p> }</section>
+    <app-expediente-resumen [totalDocumentos]="documentos().length" [totalObligatorios]="tipos() === null ? null : obligatorios().length" [obligatoriosCompletos]="completos()" [proximosAVencer]="proximos()" [vencidos]="vencidos()" />
+    @if (errorTipos()) { <p class="error-box" role="alert">No se pudo verificar la documentación requerida: {{ errorTipos() }} <button (click)="cargar()">Reintentar</button></p> }
+    @else { <section class="card"><h2>Documentación requerida</h2><p class="hint">Se indica si existe un documento activo de cada tipo. Revisa por separado su vencimiento.</p><ul class="required-list">@for (t of obligatorios(); track t.idTipoDocumento) { <li>{{ t.cargado ? '✓ Cargado' : '✕ Falta' }} · {{ t.nombre }}</li> } @empty { <li>No hay tipos obligatorios configurados.</li> }</ul></section> }
+    <header class="page-header section-title"><div><h2>Documentación</h2><p>Próximo a vencer: vence hoy o dentro de los siguientes 30 días.</p></div>@if (administrar) { <a class="btn-primary" [attr.aria-disabled]="ocupado() !== null" [routerLink]="['/expedientes', e.idExpediente, 'subir-documento']" [queryParams]="{ idEmpleado: e.idEmpleado }">+ Subir documento</a> }</header>
+    <nav class="tabs" aria-label="Filtrar documentos">@for (f of filtros; track f.valor) { <button type="button" [class.active]="filtro() === f.valor" [attr.aria-pressed]="filtro() === f.valor" (click)="filtro.set(f.valor)">{{ f.texto }}</button> }</nav>
+    @if (!capacidades.descargar || !capacidades.editar || !capacidades.eliminar) { <p class="hint">Las acciones deshabilitadas aún no están disponibles.</p> }
+    @if (ocupado() !== null) { <p role="status">Procesando documento…</p> }
+    <div class="grid-cards">@for (d of visibles(); track d.idDocumento) { <app-documento-card [documento]="d" [administrar]="administrar" [disponiblePrevisualizacion]="capacidades.previsualizar" (previsualizar)="previsualizar($event)" [disponibleDescarga]="capacidades.descargar" [disponibleEdicion]="capacidades.editar" [disponibleEliminar]="capacidades.eliminar" [ocupado]="ocupado() !== null" (descargar)="descargar($event)" (editar)="editar($event)" (eliminar)="eliminar($event)" /> } @empty { <p class="empty">{{ documentos().length ? 'No hay documentos para este filtro.' : 'Todavía no hay documentos cargados.' }}</p> }</div>
+    @if (editando(); as d) { <form class="card section-title" [formGroup]="editarForm" (ngSubmit)="guardarMetadata()"><h2>Editar {{ d.nombreOriginal }}</h2><fieldset [disabled]="ocupado() !== null"><div class="form-grid"><label>Fecha del documento<input type="date" formControlName="fechaDocumento"></label><label>Vencimiento<input type="date" formControlName="fechaVencimiento"></label><label class="wide">Observaciones<textarea maxlength="5000" formControlName="observaciones"></textarea></label></div><p class="hint">Las fechas vacías conservan su valor anterior.</p><div class="actions"><button class="btn-primary" type="submit">Guardar</button><button type="button" (click)="editando.set(null)">Cerrar</button></div></fieldset></form> }
+  }
+</section>
+
+<dialog #visor class="documento-visor" aria-labelledby="visor-titulo" (cancel)="cerrarVista()">
+  <header class="visor-header">
+    <h2 id="visor-titulo">{{ vista()?.documento?.nombreOriginal || 'Previsualización del documento' }}</h2>
+    <button type="button" autofocus (click)="cerrarVista()">Cerrar</button>
+  </header>
+  @if (cargandoVista()) { <p role="status">Cargando previsualización…</p> }
+  @if (errorVista()) { <p class="error-box" role="alert">{{ errorVista() }}</p> }
+  @if (vista(); as v) {
+    @if (v.tipo === 'application/pdf') {
+      <iframe class="visor-contenido" [src]="v.segura" [title]="'Previsualización de ' + v.documento.nombreOriginal"></iframe>
+      <p class="hint">Si tu navegador no muestra el PDF, puedes descargarlo para abrirlo.</p>
+    } @else {
+      <img class="visor-imagen" [src]="v.url" [alt]="v.documento.nombreOriginal">
+    }
+    <div class="actions"><button type="button" class="btn-primary" [disabled]="ocupado() !== null" (click)="descargar(v.documento)">{{ ocupado() !== null ? 'Descargando…' : 'Descargar' }}</button></div>
+    @if (error()) { <p class="error-box" role="alert">{{ error() }}</p> }
+  }
+</dialog>

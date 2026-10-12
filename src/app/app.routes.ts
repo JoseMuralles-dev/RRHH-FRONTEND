@@ -20,6 +20,12 @@ export const routes: Routes = [
     component: MainLayoutComponent,
 
     children: [
+      { path: 'expedientes', canActivate: [authGuard], loadChildren: () => import('./features/expedientes/expedientes.routes').then(m => m.EXPEDIENTES_ROUTES) },
+      {
+        path: 'vacaciones/saldos',
+        canActivate: [authGuard],
+        loadComponent: () => import('./features/vacaciones/pages/saldos-vacaciones/saldos-vacaciones').then(m => m.SaldosVacaciones)
+      },
       {
         path: 'vacaciones',
         canActivate: [authGuard],

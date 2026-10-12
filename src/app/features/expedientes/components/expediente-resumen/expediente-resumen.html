@@ -1,0 +1,6 @@
+﻿<div class="resumen" aria-label="Resumen documental">
+  <article><span>Documentos activos</span><strong>{{ totalDocumentos() }}</strong></article>
+  <article><span>Tipos obligatorios cargados</span><strong>{{ totalObligatorios() === null ? 'Sin información' : obligatoriosCompletos() + ' / ' + totalObligatorios() }}</strong></article>
+  <article><span>Próximos a vencer</span><strong>{{ proximosAVencer() }}</strong></article>
+  <article><span>Vencidos</span><strong>{{ vencidos() }}</strong></article>
+</div>
