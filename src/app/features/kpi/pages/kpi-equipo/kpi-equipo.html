@@ -117,6 +117,17 @@
         }
       </select>
     </div>
+    <div class="period-selector">
+      <label for="empleado-kpi">Empleado</label>
+      <select id="empleado-kpi" #empleadoFiltroSelect [value]="empleadoFiltro"
+        [disabled]="!empleadosDisponibles.length"
+        (change)="filtrarEmpleado(empleadoFiltroSelect.value)">
+        <option value="">{{ accesoGlobal && !departamentoSeleccionado ? 'Selecciona primero un departamento' : 'Todos los empleados' }}</option>
+        @for (item of opcionesEmpleado; track item.empleado.idEmpleado) {
+          <option [value]="item.empleado.idEmpleado">{{ item.empleado.nombre }} · #{{ item.empleado.idEmpleado }}</option>
+        }
+      </select>
+    </div>
     @if (!accesoGlobal || departamentoSeleccionado) {
     <div class="summary-bar">
 
@@ -146,6 +157,7 @@
 
     </div>
 
+    @if (!empleadoFiltro) {
     <section class="charts-section">
 
   <app-grafica-equipo
@@ -157,6 +169,7 @@
   </app-grafica-kpi>
 
 </section>
+    }
     }
 
     @if (

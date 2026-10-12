@@ -147,6 +147,8 @@
     dashboard.tieneDatos
   ) {
 
+    <app-ficha-desempeno [dashboard]="dashboard" (verDetalle)="detalle.scrollIntoView({ behavior: 'smooth', block: 'start' }); detalle.focus({ preventScroll: true })" />
+    <div #detalle id="detalle-mi-desempeno" tabindex="-1" aria-label="Detalle de mis KPI" style="scroll-margin-top: 24px"></div>
     <!-- RESUMEN -->
 
     @if (evaluacionPrincipal) {

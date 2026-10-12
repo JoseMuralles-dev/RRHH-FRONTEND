@@ -1,4 +1,5 @@
 export interface KpiDashboardResponse {
+  empleado?: { nombre: string; departamento: string | null };
   idEmpleado: number;
 
   periodo: KpiPeriodo;

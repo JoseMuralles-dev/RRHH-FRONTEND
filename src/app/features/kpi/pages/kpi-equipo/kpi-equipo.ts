@@ -58,6 +58,7 @@ export class KpiEquipo implements OnInit {
 
   equipo: KpiEquipoResponse | null = null;
   departamentoSeleccionado = '';
+  empleadoFiltro = '';
 
   get accesoGlobal(): boolean { return this.equipo?.alcance === 'TODOS_DEPARTAMENTOS'; }
 
@@ -71,15 +72,30 @@ export class KpiEquipo implements OnInit {
     return [...departamentos].map(([id, nombre]) => ({ id, nombre })).sort((a, b) => a.nombre.localeCompare(b.nombre));
   }
 
-  get empleadosVisibles(): KpiEmpleadoEquipo[] {
+  get empleadosDisponibles(): KpiEmpleadoEquipo[] {
     const empleados = this.equipo?.empleados ?? [];
     if (this.accesoGlobal && !this.departamentoSeleccionado) return [];
     return !this.departamentoSeleccionado ? empleados : empleados.filter(item =>
       String(item.empleado.idDepartamento) === this.departamentoSeleccionado);
   }
 
+  get empleadosVisibles(): KpiEmpleadoEquipo[] {
+    return this.empleadosDisponibles.filter(item => !this.empleadoFiltro ||
+      String(item.empleado.idEmpleado) === this.empleadoFiltro);
+  }
+
+  get opcionesEmpleado(): KpiEmpleadoEquipo[] {
+    return [...this.empleadosDisponibles].sort((a, b) => a.empleado.nombre.localeCompare(b.empleado.nombre));
+  }
+
+  filtrarEmpleado(id: string): void {
+    this.empleadoFiltro = this.empleadosDisponibles.some(item => String(item.empleado.idEmpleado) === id) ? id : '';
+    this.empleadoSeleccionado = null;
+  }
+
   filtrarDepartamento(id: string): void {
     this.departamentoSeleccionado = id;
+    this.empleadoFiltro = '';
     this.empleadoSeleccionado = null;
   }
 
@@ -219,6 +235,7 @@ export class KpiEquipo implements OnInit {
           if (this.departamentoSeleccionado && !this.departamentos.some(d => String(d.id) === this.departamentoSeleccionado)) {
             this.filtrarDepartamento('');
           }
+          this.filtrarEmpleado(this.empleadoFiltro);
           this.cdr.markForCheck();
 
         },

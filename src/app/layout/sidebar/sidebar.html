@@ -7,6 +7,7 @@
     <a routerLink="/vacaciones" routerLinkActive="active" ariaCurrentWhenActive="page">Vacaciones</a>
     <a routerLink="/kpis/mi-desempeno" routerLinkActive="active" ariaCurrentWhenActive="page">Mi desempeño</a>
     @if (auth.getUsuarioSesion(); as usuario) {
+      @if (usuario.idEmpleado !== null) { <a routerLink="/expedientes/mi-expediente" routerLinkActive="active">Mi expediente</a> }
       @if ([3, 4].includes(usuario.nivelJerarquico) || (usuario.nivelJerarquico === 2 && usuario.idEmpleado !== null)) {
         <a routerLink="/kpis/cinco-s" routerLinkActive="active" ariaCurrentWhenActive="page">Inspecciones 5S</a>
       }

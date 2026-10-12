@@ -1,3 +1,4 @@
+import { FichaDesempeno } from '../../components/ficha-desempeno/ficha-desempeno';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subscription } from 'rxjs';
 import {
@@ -33,7 +34,8 @@ import {
 
   imports: [
     CommonModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    FichaDesempeno
   ],
 
   templateUrl: './kpi-dashboard.html',
