@@ -52,7 +52,8 @@ export class ExpedienteDetalle {
     this.vista.set(null);
     if (this.visor?.nativeElement.open) this.visor.nativeElement.close();
   }
-  readonly administrar = inject(AuthService).getNivelJerarquico() >= 3;
+  private readonly auth = inject(AuthService);
+  readonly administrar = this.auth.getNivelJerarquico() >= 3;
   readonly capacidades = this.service.capacidades;
   readonly idEmpleado = signal(0);
   readonly nombre = signal('');
@@ -61,6 +62,7 @@ export class ExpedienteDetalle {
   readonly loading = signal(false); readonly saving = signal(false);
   readonly error = signal(''); readonly errorTipos = signal(''); readonly aviso = signal(''); readonly noExiste = signal(false);
   readonly filtro = signal('TODOS'); readonly ocupado = signal<number | null>(null);
+  readonly reemplazo = signal<File | undefined>(undefined);
   readonly editando = signal<DocumentoExpediente | null>(null);
   readonly filtros = [{ valor: 'TODOS', texto: 'Todos' }, { valor: 'VIGENTE', texto: 'Vigentes' }, { valor: 'PROXIMO', texto: 'Por vencer' }, { valor: 'VENCIDO', texto: 'Vencidos' }];
   readonly crearForm = this.fb.nonNullable.group({ fechaApertura: [hoyGuatemala(), Validators.required], observaciones: ['', Validators.maxLength(5000)] });
@@ -75,19 +77,19 @@ export class ExpedienteDetalle {
   constructor() {
     this.destroyRef.onDestroy(() => this.cerrarVista());
     inject(ActivatedRoute).paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
-      this.cerrarVista(); this.idEmpleado.set(Number(params.get('idEmpleado'))); this.filtro.set('TODOS'); this.cargar();
+      this.cerrarVista(); this.idEmpleado.set(Number(params.get('idEmpleado') ?? this.auth.getUsuarioSesion()?.idEmpleado)); this.filtro.set('TODOS'); this.cargar();
     });
   }
   cargar() {
     if (this.saving() || this.ocupado() !== null) return;
     this.consulta?.unsubscribe(); this.expediente.set(null); this.tipos.set(null); this.noExiste.set(false); this.editando.set(null); this.nombre.set(''); this.error.set(''); this.errorTipos.set('');
     const id = this.idEmpleado();
-    if (!this.administrar || !Number.isSafeInteger(id) || id < 1) { this.error.set('No tienes acceso o el identificador de empleado no es válido.'); return; }
+    if ((!this.administrar && id !== this.auth.getUsuarioSesion()?.idEmpleado) || !Number.isSafeInteger(id) || id < 1) { this.error.set('No tienes acceso o el identificador de empleado no es válido.'); return; }
     this.loading.set(true);
     this.consulta = forkJoin({
       expediente: this.service.obtenerExpedienteEmpleado(id).pipe(catchError((e: unknown) => { if (e instanceof HttpErrorResponse && e.status === 404) this.noExiste.set(true); else this.error.set(errorExpediente(e)); return of(null); })),
       tipos: this.service.listarTiposDocumento().pipe(catchError((e: unknown) => { this.errorTipos.set(errorExpediente(e)); return of(null); })),
-      empleado: this.empleadosService.obtener(id).pipe(catchError(() => of(null))),
+      empleado: this.administrar ? this.empleadosService.obtener(id).pipe(catchError(() => of(null))) : of(null),
     }).pipe(takeUntilDestroyed(this.destroyRef), finalize(() => this.loading.set(false))).subscribe(({ expediente, tipos, empleado }) => {
       this.expediente.set(expediente); this.tipos.set(tipos);
       const e = expediente?.empleado;
@@ -110,18 +112,28 @@ export class ExpedienteDetalle {
   }
   editar(documento: DocumentoExpediente) {
     if (!this.administrar || !this.capacidades.editar || this.ocupado() !== null) return;
-    this.editando.set(documento); this.editarForm.setValue({ fechaDocumento: documento.fechaDocumento ?? '', fechaVencimiento: documento.fechaVencimiento ?? '', observaciones: documento.observaciones ?? '' });
+    this.reemplazo.set(undefined); this.error.set(''); this.editando.set(documento); this.editarForm.setValue({ fechaDocumento: documento.fechaDocumento ?? '', fechaVencimiento: documento.fechaVencimiento ?? '', observaciones: documento.observaciones ?? '' });
+  }
+  seleccionarReemplazo(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const archivo = input.files?.[0];
+    this.reemplazo.set(undefined); this.error.set('');
+    if (!archivo) return;
+    if (!['application/pdf', 'image/jpeg', 'image/png'].includes(archivo.type) || !archivo.size || archivo.size > 10 * 1024 * 1024) {
+      input.value = ''; this.error.set('Selecciona un PDF, JPG o PNG de hasta 10 MB.'); return;
+    }
+    this.reemplazo.set(archivo);
   }
   guardarMetadata() {
     const d = this.editando(); if (!d || !this.administrar || !this.capacidades.editar || this.ocupado() !== null) return;
     this.editarForm.markAllAsTouched(); const v = this.editarForm.getRawValue();
     if (this.editarForm.invalid || (v.fechaDocumento && fechaCalendario(v.fechaDocumento) === null) || (v.fechaVencimiento && fechaCalendario(v.fechaVencimiento) === null) || (d.tipoDocumento?.requiereVencimiento && !v.fechaVencimiento)) { this.error.set('Revisa las fechas del documento.'); return; }
     this.ocupado.set(d.idDocumento); this.error.set('');
-    this.service.actualizarDocumento(d.idDocumento, { ...(v.fechaDocumento ? { fechaDocumento: v.fechaDocumento } : {}), ...(v.fechaVencimiento ? { fechaVencimiento: v.fechaVencimiento } : {}), observaciones: v.observaciones.trim() }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({ next: () => { this.ocupado.set(null); this.aviso.set('Datos actualizados.'); this.cargar(); }, error: e => { this.ocupado.set(null); this.error.set(errorExpediente(e)); } });
+    this.service.actualizarDocumento(d.idDocumento, { ...(v.fechaDocumento ? { fechaDocumento: v.fechaDocumento } : {}), ...(v.fechaVencimiento ? { fechaVencimiento: v.fechaVencimiento } : {}), observaciones: v.observaciones.trim() }, this.reemplazo()).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({ next: () => { this.ocupado.set(null); this.cerrarVista(); this.aviso.set('Documento actualizado.'); this.cargar(); }, error: e => { this.ocupado.set(null); this.error.set(errorExpediente(e)); } });
   }
   eliminar(documento: DocumentoExpediente) {
     if (!this.administrar || !this.capacidades.eliminar || this.ocupado() !== null || !window.confirm(`¿Desactivar ${documento.nombreOriginal}?`)) return;
     this.ocupado.set(documento.idDocumento); this.error.set('');
-    this.service.eliminarDocumento(documento.idDocumento).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({ next: () => { this.ocupado.set(null); this.aviso.set('Documento desactivado.'); this.cargar(); }, error: e => { this.ocupado.set(null); this.error.set(errorExpediente(e)); } });
+    this.service.eliminarDocumento(documento.idDocumento).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({ next: () => { this.ocupado.set(null); this.cerrarVista(); this.aviso.set('Documento desactivado.'); this.cargar(); }, error: e => { this.ocupado.set(null); this.error.set(errorExpediente(e)); } });
   }
 }

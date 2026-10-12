@@ -49,6 +49,14 @@ export class ExpedienteService {
   }
   descargarDocumento(idExpediente: number, id: number) { return this.sesion(this.http.get(`${this.url}/${idExpediente}/documentos/${id}/descargar`, { responseType: 'blob' })); }
   previsualizarDocumento(idExpediente: number, id: number) { return this.sesion(this.http.get(this.url + '/' + idExpediente + '/documentos/' + id + '/previsualizar', { responseType: 'blob' })); }
-  actualizarDocumento(id: number, payload: ActualizarDocumentoPayload) { return this.sesion(this.http.patch<DocumentoExpediente>(`${this.url}/documentos/${id}`, payload)); }
+  actualizarDocumento(id: number, payload: ActualizarDocumentoPayload, archivo?: File) {
+    let body: ActualizarDocumentoPayload | FormData = payload;
+    if (archivo) {
+      body = new FormData();
+      body.append('archivo', archivo);
+      Object.entries(payload).forEach(([key, value]) => { if (value !== undefined) (body as FormData).append(key, value); });
+    }
+    return this.sesion(this.http.patch<DocumentoExpediente>(`${this.url}/documentos/${id}`, body));
+  }
   eliminarDocumento(id: number) { return this.sesion(this.http.delete<void>(`${this.url}/documentos/${id}`)); }
 }

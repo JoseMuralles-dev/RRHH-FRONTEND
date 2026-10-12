@@ -37,6 +37,16 @@ describe('ExpedienteService', () => {
     service.actualizarDocumento(9, { observaciones: 'Actualizado' }).subscribe(); const patch = http.expectOne(base + '/documentos/9'); expect(patch.request.method).toBe('PATCH'); patch.flush(documento);
     service.eliminarDocumento(9).subscribe(); const del = http.expectOne(base + '/documentos/9'); expect(del.request.method).toBe('DELETE'); del.flush(null);
   });
+  it('reemplaza el archivo por multipart y permite limpiar observaciones', () => {
+    const archivo = new File(['%PDF-1.4'], 'nuevo.pdf', { type: 'application/pdf' });
+    service.actualizarDocumento(9, { observaciones: '' }, archivo).subscribe();
+    const req = http.expectOne(base + '/documentos/9');
+    expect(req.request.method).toBe('PATCH');
+    expect(req.request.body.get('archivo')).toBe(archivo);
+    expect(req.request.body.get('observaciones')).toBe('');
+    expect(req.request.headers.has('Content-Type')).toBe(false);
+    req.flush(documento);
+  });
   it('limpia la sesión ante 401', async () => {
     const logout = vi.spyOn(TestBed.inject(AuthService), 'logout'); const nav = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
     service.obtenerExpedienteEmpleado(10).subscribe({ error: () => {} }); http.expectOne(base + '/empleado/10').flush({}, { status: 401, statusText: 'Unauthorized' });

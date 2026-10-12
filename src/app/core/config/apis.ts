@@ -37,7 +37,7 @@ export const API = {
   expedientes: {
     base: '/expedientes',
     // Habilitar solo cuando las rutas protegidas est?n implementadas en el backend.
-    capacidades: { descargar: true, previsualizar: true, editar: false, eliminar: false },
+    capacidades: { descargar: true, previsualizar: true, editar: true, eliminar: true },
   },
   vacaciones: { base: '/vacaciones' },
   kpi: {
