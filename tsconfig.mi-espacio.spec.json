@@ -1,0 +1,8 @@
+{
+  "extends": "./tsconfig.spec.json",
+  "include": [
+    "src/**/*.d.ts",
+    "src/app/features/kpi/components/ficha-desempeno/**/*.spec.ts",
+    "src/app/features/expedientes/pages/expediente-detalle/**/*.spec.ts"
+  ]
+}

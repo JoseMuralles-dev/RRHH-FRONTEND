@@ -4,13 +4,15 @@
   </header>
   <nav class="tabs" aria-label="Bandejas de solicitudes">
     @if (tieneEmpleado) { <button type="button" [class.active]="vista() === 'mias'" [attr.aria-pressed]="vista() === 'mias'" (click)="cambiarVista('mias')">Mis solicitudes</button> }
+    @if (puedeAprobar) {
     <button type="button" [class.active]="vista() === 'pendientes'" [attr.aria-pressed]="vista() === 'pendientes'" (click)="cambiarVista('pendientes')">Pendientes de mi aprobación</button>
     <button type="button" [class.active]="vista() === 'aprobadas'" [attr.aria-pressed]="vista() === 'aprobadas'" (click)="cambiarVista('aprobadas')">Aprobadas por mí</button>
+    }
     <button type="button" [disabled]="loading()" (click)="recargar()">Actualizar</button>
   </nav>
   @if (vista() === 'mias') { <p class="form-guide">Aquí puedes seguir el estado de lo que has solicitado. Para comenzar, selecciona “Nueva solicitud”.</p> }
   @if (vista() === 'pendientes') { <p class="form-guide">Estas solicitudes necesitan tu revisión. Abre “Ver detalle” para consultar la información y las acciones disponibles.</p> }
-  @if (!tieneEmpleado) { <p class="hint">Tu cuenta no tiene un empleado asociado. Puedes consultar las aprobaciones que te asignen.</p> }
+  @if (!tieneEmpleado && puedeAprobar) { <p class="hint">Tu cuenta no tiene un empleado asociado. Puedes consultar las aprobaciones que te asignen.</p> }
   @if (vista() === 'aprobadas') { <p class="hint">Solicitudes que ya aprobaste. El estado indica si aún esperan otra aprobación o si ya finalizaron.</p> }
   @if (loading()) { <p role="status">Cargando solicitudes...</p> }
   @else if (error()) { <div class="error-box" role="alert">{{ error() }} <button type="button" (click)="recargar()">Reintentar</button></div> }

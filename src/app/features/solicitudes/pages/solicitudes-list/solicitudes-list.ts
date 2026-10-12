@@ -14,11 +14,12 @@ export class SolicitudesList {
   private readonly auth = inject(AuthService);
   private readonly service = inject(SolicitudService);
   private readonly refresh = new Subject<void>();
-  readonly vista = signal<'mias' | 'pendientes' | 'aprobadas'>(this.tieneEmpleado ? 'mias' : 'pendientes');
+  readonly vista = signal<'mias' | 'pendientes' | 'aprobadas'>(this.tieneEmpleado || !this.puedeAprobar ? 'mias' : 'pendientes');
   readonly solicitudes = signal<Solicitud[]>([]);
   readonly loading = signal(true);
   readonly error = signal('');
   readonly nombre = nombreEmpleado;
+  get puedeAprobar() { return [2, 3, 4].includes(this.auth.getUsuarioSesion()?.nivelJerarquico ?? 0); }
   get tieneEmpleado() { return !!this.auth.getUsuarioSesion()?.idEmpleado; }
   constructor() {
     this.refresh.pipe(startWith(undefined), switchMap(() => {
@@ -32,6 +33,7 @@ export class SolicitudesList {
     });
   }
   cambiarVista(vista: 'mias' | 'pendientes' | 'aprobadas') {
+    if (vista !== 'mias' && !this.puedeAprobar) return;
     if (vista === 'mias' && !this.tieneEmpleado) return;
     this.vista.set(vista); this.refresh.next();
   }

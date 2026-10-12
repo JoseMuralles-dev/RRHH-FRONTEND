@@ -1,0 +1,8 @@
+{
+  "extends": "./tsconfig.spec.json",
+  "include": [
+    "src/**/*.d.ts",
+    "src/app/features/solicitudes/pages/solicitudes-list/solicitudes-roles.spec.ts",
+    "src/app/features/kpi/components/ficha-desempeno/**/*.spec.ts"
+  ]
+}
