@@ -21,7 +21,11 @@ describe('Acceso a KPI de equipo', () => {
     auth.getUsuarioSesion.mockReturnValue({ idEmpleado: 22, nivelJerarquico });
     expect(comprobar()).toEqual(TestBed.inject(Router).createUrlTree(['/kpis/mi-desempeno']));
   });
-  it('no permite usuarios sin empleado asociado', () => {
+  it.each([3, 4])('permite nivel %i sin empleado asociado', nivelJerarquico => {
+    auth.getUsuarioSesion.mockReturnValue({ idEmpleado: null, nivelJerarquico });
+    expect(comprobar()).toBe(true);
+  });
+  it('no permite encargados sin empleado asociado', () => {
     auth.getUsuarioSesion.mockReturnValue({ idEmpleado: null, nivelJerarquico: 2 });
     expect(comprobar()).not.toBe(true);
   });

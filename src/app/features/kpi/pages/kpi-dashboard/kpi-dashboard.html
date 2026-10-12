@@ -150,6 +150,7 @@
     <!-- RESUMEN -->
 
     @if (evaluacionPrincipal) {
+      @if (evaluacionPrincipal.estado === 'PENDIENTE_5S') { <p role="status">Nota provisional: faltan inspecciones 5S del departamento.</p> }
 
       <section>
 

@@ -1,15 +1,16 @@
 <div class="equipo-page">
+  <p><a routerLink="/kpis/cinco-s">Evaluar orden y limpieza · 5S (20%)</a></p>
 
   <div class="page-header">
 
     <div>
 
       <h1>
-        Desempeño del equipo
+        {{ accesoGlobal ? 'KPI por departamento' : 'Desempeño del equipo' }}
       </h1>
 
       <p>
-        Consulta los KPI del personal a tu cargo.
+        {{ accesoGlobal ? 'Selecciona un departamento para consultar sus KPI.' : 'Consulta los KPI del personal a tu cargo.' }}
       </p>
 
     </div>
@@ -106,16 +107,27 @@
 
   @else if (equipo) {
 
+    <div class="period-selector">
+      <label for="departamento-kpi">Departamento</label>
+      <select id="departamento-kpi" #departamento [value]="departamentoSeleccionado"
+        (change)="filtrarDepartamento(departamento.value)">
+        <option value="">{{ accesoGlobal ? 'Selecciona un departamento' : 'Todos los departamentos de mi equipo' }}</option>
+        @for (opcion of departamentos; track opcion.id) {
+          <option [value]="opcion.id">{{ opcion.nombre }}</option>
+        }
+      </select>
+    </div>
+    @if (!accesoGlobal || departamentoSeleccionado) {
     <div class="summary-bar">
 
       <div>
 
         <span>
-          Personal a cargo
+          {{ accesoGlobal ? 'Empleados' : 'Personal a cargo' }}
         </span>
 
         <strong>
-          {{ equipo.totalSubordinados }}
+          {{ empleadosVisibles.length }}
         </strong>
 
       </div>
@@ -137,22 +149,23 @@
     <section class="charts-section">
 
   <app-grafica-equipo
-    [empleados]="equipo.empleados">
+    [empleados]="empleadosVisibles">
   </app-grafica-equipo>
 
   <app-grafica-kpi
-    [empleados]="equipo.empleados">
+    [empleados]="empleadosVisibles">
   </app-grafica-kpi>
 
 </section>
+    }
 
     @if (
-      equipo.empleados.length === 0
+      empleadosVisibles.length === 0
     ) {
 
       <div class="state-card">
 
-        No hay empleados asignados a este encargado.
+        {{ accesoGlobal && !departamentoSeleccionado ? 'Selecciona un departamento para ver sus empleados y gráficas de KPI.' : 'No hay empleados para el departamento seleccionado.' }}
 
       </div>
 
@@ -163,7 +176,7 @@
       <div class="employee-grid">
 
         @for (
-          item of equipo.empleados;
+          item of empleadosVisibles;
           track item.empleado.idEmpleado
         ) {
 
@@ -193,7 +206,7 @@
                 </h3>
 
                 <span>
-                  Empleado #{{ item.empleado.idEmpleado }}
+                  {{ item.empleado.departamento || 'Sin departamento' }} · Empleado #{{ item.empleado.idEmpleado }}
                 </span>
 
               </div>
@@ -201,6 +214,24 @@
             </div>
 
 
+            @let cumplimiento = cumplimientoDe(item);
+            <div class="employee-compliance">
+              <span class="compliance-title">Meta alcanzada</span>
+              <svg viewBox="0 0 120 78" role="img"
+                [attr.aria-label]="'Cumplimiento de ' + item.empleado.nombre + ': ' + (cumplimiento.porcentaje === null ? 'sin datos calculables' : (cumplimiento.porcentaje | number:'1.0-2') + ' por ciento')">
+                <path class="compliance-track" d="M 12 60 A 48 48 0 0 1 108 60" />
+                @if (cumplimiento.porcentaje !== null) {
+                  <path class="compliance-fill" d="M 12 60 A 48 48 0 0 1 108 60" pathLength="100"
+                    [attr.stroke-dasharray]="limitarPorcentaje(cumplimiento.porcentaje) + ' 100'" />
+                }
+                <text x="60" y="57" text-anchor="middle">{{ cumplimiento.porcentaje === null ? '—' : (cumplimiento.porcentaje | number:'1.0-2') + '%' }}</text>
+              </svg>
+              @if (cumplimiento.porcentaje === null) {
+                <small>Sin datos</small>
+              } @else if (cumplimiento.validas < cumplimiento.total) {
+                <small>Datos parciales</small>
+              }
+            </div>
             @if (
               item.dashboard.tieneDatos
             ) {
@@ -208,7 +239,8 @@
               @if (
                 evaluacionDe(item);
                 as evaluacion
-              ) {
+        ) {
+          @if (evaluacion.estado === 'PENDIENTE_5S') { <p role="status">Nota provisional: faltan inspecciones 5S del departamento.</p> }
 
                 <div class="employee-score">
 
@@ -349,6 +381,7 @@
           evaluacionDe(seleccionado);
           as evaluacion
         ) {
+          @if (evaluacion.estado === 'PENDIENTE_5S') { <p role="status">Nota provisional: faltan inspecciones 5S del departamento.</p> }
 
           <div class="evaluation-summary">
 

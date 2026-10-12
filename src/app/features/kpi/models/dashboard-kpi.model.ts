@@ -81,13 +81,16 @@ export interface KpiEmpleadoEquipo {
   empleado: {
     idEmpleado: number;
     nombre: string;
+    idDepartamento?: number | null;
+    departamento?: string | null;
   };
 
   dashboard: KpiDashboardResponse;
 }
 
 export interface KpiEquipoResponse {
-  idEncargado: number;
+  idEncargado: number | null;
+  alcance?: 'TODOS_DEPARTAMENTOS' | 'EQUIPO';
 
   periodo: {
     anio: number;

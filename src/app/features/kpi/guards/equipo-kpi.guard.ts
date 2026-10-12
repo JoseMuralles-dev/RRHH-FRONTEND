@@ -6,7 +6,7 @@ export const equipoKpiGuard: CanActivateFn = () => {
   const usuario = inject(AuthService).getUsuarioSesion();
   const router = inject(Router);
   if (!usuario) return router.createUrlTree(['/login']);
-  return usuario.idEmpleado !== null && [2, 3, 4].includes(usuario.nivelJerarquico)
+  return [3, 4].includes(usuario.nivelJerarquico) || (usuario.nivelJerarquico === 2 && usuario.idEmpleado !== null)
     ? true
     : router.createUrlTree(['/kpis/mi-desempeno']);
 };

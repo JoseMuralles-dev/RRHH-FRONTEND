@@ -1,3 +1,4 @@
+import { RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subscription } from 'rxjs';
 import {
@@ -39,6 +40,7 @@ import { GraficaSerieDiaria } from '../../components/grafica-serie-diaria/grafic
   standalone: true,
 
   imports: [
+    RouterLink,
     CommonModule,
     ReactiveFormsModule,
     GraficaEquipo,
@@ -55,6 +57,31 @@ export class KpiEquipo implements OnInit {
   private solicitud?: Subscription;
 
   equipo: KpiEquipoResponse | null = null;
+  departamentoSeleccionado = '';
+
+  get accesoGlobal(): boolean { return this.equipo?.alcance === 'TODOS_DEPARTAMENTOS'; }
+
+  get departamentos(): { id: number; nombre: string }[] {
+    const departamentos = new Map<number, string>();
+    for (const item of this.equipo?.empleados ?? []) {
+      if (item.empleado.idDepartamento != null) {
+        departamentos.set(item.empleado.idDepartamento, item.empleado.departamento ?? 'Departamento ' + item.empleado.idDepartamento);
+      }
+    }
+    return [...departamentos].map(([id, nombre]) => ({ id, nombre })).sort((a, b) => a.nombre.localeCompare(b.nombre));
+  }
+
+  get empleadosVisibles(): KpiEmpleadoEquipo[] {
+    const empleados = this.equipo?.empleados ?? [];
+    if (this.accesoGlobal && !this.departamentoSeleccionado) return [];
+    return !this.departamentoSeleccionado ? empleados : empleados.filter(item =>
+      String(item.empleado.idDepartamento) === this.departamentoSeleccionado);
+  }
+
+  filtrarDepartamento(id: string): void {
+    this.departamentoSeleccionado = id;
+    this.empleadoSeleccionado = null;
+  }
 
   empleadoSeleccionado:
     KpiEmpleadoEquipo | null = null;
@@ -189,6 +216,9 @@ export class KpiEquipo implements OnInit {
 
           this.equipo =
             response;
+          if (this.departamentoSeleccionado && !this.departamentos.some(d => String(d.id) === this.departamentoSeleccionado)) {
+            this.filtrarDepartamento('');
+          }
           this.cdr.markForCheck();
 
         },
@@ -257,6 +287,20 @@ export class KpiEquipo implements OnInit {
 
   }
 
+  cumplimientoDe(empleado: KpiEmpleadoEquipo): { porcentaje: number | null; validas: number; total: number } {
+    const metricas = new Map<number, number | null>();
+    for (const evaluacion of empleado.dashboard.evaluaciones) {
+      for (const resultado of evaluacion.resultados) {
+        if (!metricas.has(resultado.idMetrica)) {
+          const valor = resultado.porcentajeCumplimiento;
+          metricas.set(resultado.idMetrica, typeof valor === 'number' && Number.isFinite(valor) && valor >= 0 ? valor : null);
+        }
+      }
+    }
+    const valores = [...metricas.values()].filter((v): v is number => v !== null);
+    return { porcentaje: valores.length ? valores.reduce((suma, v) => suma + v, 0) / valores.length : null,
+      validas: valores.length, total: metricas.size };
+  }
   limitarPorcentaje(
     porcentaje: number | null
   ): number {

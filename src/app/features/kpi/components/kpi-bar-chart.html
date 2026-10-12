@@ -15,7 +15,7 @@
       }
     </div>
     <div class="plot-scroll" tabindex="0" role="region" [attr.aria-label]="'Gráfica de ' + titulo">
-      <svg class="plot" [attr.viewBox]="'0 0 ' + canvasWidth + ' 270'" [style.min-width.px]="canvasWidth" role="img" [attr.aria-label]="titulo + '. Valores disponibles en Ver datos.'">
+      <svg class="plot" [attr.viewBox]="'0 0 ' + canvasWidth + ' 270'" role="img" [attr.aria-label]="titulo + '. Valores disponibles en Ver datos.'">
         @for (tick of ticks; track $index) {
           <line x1="64" [attr.x2]="canvasWidth - 26" [attr.y1]="y(tick)" [attr.y2]="y(tick)" class="grid-line" />
           <text x="54" [attr.y]="y(tick) + 4" text-anchor="end" class="axis">{{ tick | number:'1.0-1' }}</text>

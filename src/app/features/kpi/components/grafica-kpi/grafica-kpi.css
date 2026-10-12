@@ -1,1 +1,2 @@
-﻿:host { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,440px),1fr)); gap:20px; margin-bottom:24px; }
+:host { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,440px),1fr)); gap:20px; margin-bottom:24px; }
+@media (max-width: 1024px) { :host { grid-template-columns: minmax(0, 1fr); } }
