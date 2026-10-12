@@ -1,33 +1,21 @@
-<div class="dashboard">
-
-  <h1>Inicio</h1>
-
-  <p class="welcome">
-    Bienvenido al sistema de gestión de Recursos Humanos.
-  </p>
-
+<section class="dashboard">
+  <header class="home-header">
+    <span class="home-eyebrow">RECURSOS HUMANOS</span>
+    <h1>¿Qué necesitas hacer hoy?</h1>
+    <p class="welcome">Accede a tus consultas y trámites.</p>
+  </header>
+  <h2>Tu espacio de trabajo</h2>
   <div class="cards">
-
-    <div class="card">
-      <h3>Empleados</h3>
-      <p>Gestión de colaboradores.</p>
-    </div>
-
-    <div class="card">
-      <h3>Solicitudes</h3>
-      <p>Administración de solicitudes.</p>
-    </div>
-
-    <div class="card">
-      <h3>Vacaciones</h3>
-      <p>Control de vacaciones.</p>
-    </div>
-
-    <div class="card">
-      <h3>KPIs</h3>
-      <p>Indicadores de desempeño.</p>
-    </div>
-
+    <a class="card" routerLink="/solicitudes"><h3>Solicitudes</h3><p>Tus solicitudes y aprobaciones pendientes.</p><span class="card-action">Ver solicitudes →</span></a>
+    <a class="card" routerLink="/vacaciones"><h3>Vacaciones</h3><p>Saldos, próximas vacaciones e historial.</p><span class="card-action">Consultar vacaciones →</span></a>
+    <a class="card" routerLink="/kpis/mi-desempeno"><h3>Mi desempeño</h3><p>Tus indicadores y resultados.</p><span class="card-action">Ver mis indicadores →</span></a>
   </div>
-
-</div>
+  @if (auth.getNivelJerarquico() >= 3) {
+    <h2>Gestión de personal</h2>
+    <div class="cards">
+      <a class="card" routerLink="/empleados"><h3>Empleados</h3><p>Busca colaboradores, consulta sus datos y actualiza su información.</p><span class="card-action">Consultar empleados →</span></a>
+      <a class="card" routerLink="/expedientes"><h3>Expedientes digitales</h3><p>Encuentra y administra los documentos de cada empleado.</p><span class="card-action">Ver expedientes →</span></a>
+      <a class="card" routerLink="/departamentos"><h3>Departamentos y puestos</h3><p>Consulta y organiza las áreas y los puestos de la empresa.</p><span class="card-action">Ver departamentos →</span></a>
+    </div>
+  }
+</section>
