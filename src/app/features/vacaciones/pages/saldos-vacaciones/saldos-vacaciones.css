@@ -1,0 +1,20 @@
+@import '../../vacaciones.css';
+.resumen{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:20px 0}.resumen article{padding:20px;background:var(--surface);border:1px solid var(--border-subtle);border-radius:12px}.resumen span{display:block;color:var(--text-muted);font-size:13px}.resumen strong{display:block;margin-top:10px;font-size:24px}.advertencia{padding:18px;background:var(--warning-bg);color:var(--warning-text);border-radius:8px;margin:16px 0}.exito{padding:16px;background:var(--success-bg);color:var(--success-text);border-radius:8px}.editor{padding:22px;border:1px solid var(--border-strong);border-radius:12px;margin:20px 0;background:var(--surface)}.campos{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-bottom:18px}.campos input,.campos textarea{width:100%;box-sizing:border-box}.campos textarea{min-height:80px;font:inherit;border:1px solid var(--border-strong);border-radius:6px;padding:10px}.paginacion{display:flex;justify-content:center;align-items:center;gap:16px;margin:24px 0}fieldset{border:0;padding:0;min-width:0}button:disabled{opacity:.5;cursor:not-allowed}.error{white-space:pre-line}h2{font-size:20px;margin-top:24px}.filtros input[type=date]{width:auto}@media(max-width: 768px){.resumen,.campos{grid-template-columns:1fr}.paginacion{gap:8px;font-size:13px}.filtros select{max-width:100%}}
+@media (max-width: 576px) { .filtros input[type=date] { width: 100%; } .editor { padding: 16px; } .paginacion { flex-wrap: wrap; } }
+.acciones-gestion { display: flex; flex-wrap: wrap; gap: 8px; } .campos select { min-width: 0; width: 100%; } td { overflow-wrap: anywhere; }
+.tabla-saldos { max-height: 65vh; } .tabla-saldos th { position: sticky; top: 0; z-index: 1; } .tabla-saldos td, .tabla-saldos th { border-right: 1px solid var(--border-subtle); white-space: nowrap; } .tabla-saldos td:first-child { white-space: normal; min-width: 220px; } .tabla-saldos tbody tr:nth-child(even) { background: var(--surface-muted); } .tabla-saldos small { display: block; color: var(--text-muted); } .filtros input[type=search] { width: 220px; max-width: 100%; }
+.contexto-empleado { margin-top: 24px; }
+.contexto-empleado h2 { margin: 0; }
+.contexto-empleado small { color: var(--text-muted); font-size: .875rem; font-weight: 400; }
+.resumen article { min-width: 0; }
+.resumen article p { color: var(--text-muted); font-size: .8125rem; line-height: 1.5; margin: 10px 0 0; }
+.resumen .saldo-destacado { border-color: var(--focus-ring-border); background: var(--info-bg); }
+.resumen .saldo-destacado strong { color: var(--link-color); font-size: 2rem; }
+.panel-consulta > label:first-child { flex: 1 1 260px; }
+.panel-consulta select { max-width: 100%; }
+.editor { border: 2px solid var(--focus-ring-border); box-shadow: 0 4px 16px var(--shadow-color-primary-soft); }
+.editor h2 { margin-top: 0; }
+.editor .campos { gap: 20px; }
+.editor .campos label { font-size: .875rem; line-height: 1.5; }
+.editor button { margin-top: 8px; }
+@media (max-width: 576px) { .panel-consulta > label:first-child { flex-basis: auto; } .editor button { width: 100%; } }

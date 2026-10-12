@@ -1,0 +1,109 @@
+<section class="vacaciones">
+  <header><div><span class="eyebrow">Vacaciones</span><h1>Saldos y seguimiento</h1><p>Elige a quién consultar y revisa sus días, períodos y movimientos.</p></div><a routerLink="/vacaciones">Volver a mis solicitudes</a></header>
+  <nav class="vistas" aria-label="Gestión de vacaciones">
+    @if (puedeEquipo) { <button type="button" [disabled]="guardando()" [class.activa]="vista() === 'tabla'" [attr.aria-pressed]="vista() === 'tabla'" (click)="cambiarVista('tabla')">{{ puedeGestionar ? 'Todos los empleados' : 'Mi equipo' }}</button> }
+    <button type="button" [disabled]="guardando()" [class.activa]="vista() === 'saldo'" [attr.aria-pressed]="vista() === 'saldo'" (click)="cambiarVista('saldo')">Resumen de días</button>
+    <button type="button" [disabled]="guardando()" [class.activa]="vista() === 'movimientos'" [attr.aria-pressed]="vista() === 'movimientos'" (click)="cambiarVista('movimientos')">Historial de cambios</button>
+    <button type="button" [disabled]="guardando()" [class.activa]="vista() === 'periodos'" [attr.aria-pressed]="vista() === 'periodos'" (click)="cambiarVista('periodos')">Períodos asignados</button>
+    <button type="button" [disabled]="guardando()" [class.activa]="vista() === 'calendario'" [attr.aria-pressed]="vista() === 'calendario'" (click)="cambiarVista('calendario')">Calendario</button>
+  </nav>
+  @if (puedeEquipo && vista() !== 'calendario') {
+    <form class="filtros panel-consulta" (ngSubmit)="consultarEmpleado()">
+      <label>¿A quién quieres consultar? <select name="empleado" [(ngModel)]="empleadoElegido" [disabled]="guardando()">
+        <option [ngValue]="null">Mi saldo</option>
+        <option value="todos">{{ puedeGestionar ? 'Todos los empleados' : 'Todo mi equipo' }}</option>
+        @for (e of empleados(); track e.idEmpleado) { <option [ngValue]="e.idEmpleado">{{ e.nombreCompleto }}</option> }
+      </select></label>
+      @if (vista() === 'tabla' || empleadoElegido === 'todos') {
+        <label>Buscar nombre <input type="search" name="buscar" [(ngModel)]="buscar" maxlength="100" placeholder="Nombre o apellido"></label>
+        <label>Ordenar por <select name="orden" [(ngModel)]="orden"><option value="nombre">Empleado</option><option value="saldo">Saldo</option><option value="inicio">Inicio del período</option></select></label>
+        <label>Orden <select name="direccion" [(ngModel)]="direccion"><option value="ASC">Ascendente</option><option value="DESC">Descendente</option></select></label>
+      }
+      <button type="submit" class="accion" [disabled]="guardando()">Ver resultados</button>
+    </form>
+    @if (errorEmpleados()) { <p class="error" role="alert">{{ errorEmpleados() }} <button (click)="cargarEmpleados()">Reintentar lista</button></p> }
+  }
+  @if (vista() === 'calendario') {
+    <form class="filtros" (ngSubmit)="consultarCalendario()"><label>Desde <input type="date" name="desde" [(ngModel)]="desde" required></label><label>Hasta <input type="date" name="hasta" [(ngModel)]="hasta" required></label>
+      @if (puedeEquipo) { <label>Calendario <select name="equipo" [(ngModel)]="equipo"><option [ngValue]="false">Propio</option><option [ngValue]="true">Mi equipo directo</option></select></label> }
+      <button type="submit" class="accion">Ver resultados</button>
+    </form><p class="ayuda">Agenda del rango seleccionado, hasta 366 días. Incluye solicitudes que empiezan antes o terminan después del rango.</p>
+  }
+  @if (aviso()) { <p class="exito" role="status">{{ aviso() }}</p> }
+  @if (error()) { <p class="error" role="alert">{{ error() }} <button type="button" [disabled]="guardando()" (click)="cargar()">Actualizar consulta</button></p> }
+  @if (cargando()) { <p class="mensaje" role="status">Cargando vacaciones…</p> }
+  @if (formulario() === 'periodo') {
+    <form class="editor" (ngSubmit)="guardarPeriodo()"><span class="eyebrow">{{ nombreEmpleado }} #{{ idObjetivo }}</span><h2>{{ periodoId ? 'Editar período #' + periodoId : 'Agregar período' }}</h2><p class="ayuda">Registra solo días reconocidos por RRHH. El consumo histórico no se vuelve a registrar como movimiento. Los períodos con movimientos conservan sus fechas y valores iniciales; corrige el saldo con ajustes.</p>
+      <fieldset [disabled]="guardando()"><div class="campos">
+        <label>Fecha inicial <input type="date" name="inicio" [(ngModel)]="periodo.fechaInicio" required></label><label>Fecha final <input type="date" name="fin" [(ngModel)]="periodo.fechaFin" required></label>
+        <label>Días asignados <input type="text" inputmode="decimal" name="asignados" [(ngModel)]="periodo.diasAsignados" pattern="[0-9]{1,4}([.][0-9]{1,2})?" required></label>
+        <label>Días utilizados antes del registro <input type="text" inputmode="decimal" name="historico" [(ngModel)]="periodo.diasUtilizadosIniciales" pattern="[0-9]{1,4}([.][0-9]{1,2})?" required></label>
+        <label>Fecha hasta la que se registró ese consumo <input type="date" name="corte" [(ngModel)]="periodo.fechaCorteInicial"></label>
+        <label>Observaciones <textarea name="observaciones" [(ngModel)]="periodo.observaciones" maxlength="500"></textarea></label>
+      </div><p class="ayuda">Si empiezas desde cero, deja los días utilizados en 0. Si registras días ya tomados, indica hasta qué fecha se contabilizaron. Usa punto decimal, por ejemplo 12.50.</p><button type="submit" class="accion">{{ guardando() ? 'Guardando…' : 'Guardar período' }}</button> <button type="button" (click)="formulario.set(null)">Cancelar</button></fieldset>
+    </form>
+  }
+  @if (formulario() === 'ajuste') {
+    <form class="editor" (ngSubmit)="guardarAjuste()"><span class="eyebrow">{{ nombreEmpleado }} #{{ idObjetivo }}</span><h2>Corregir el saldo de un período</h2><p class="ayuda">El ajuste queda registrado en el historial y no se puede editar ni eliminar.</p><fieldset [disabled]="guardando()"><div class="campos">
+      <label>Período <select name="periodoAjuste" [(ngModel)]="periodoId" required>@for (p of datos().saldo?.periodos ?? []; track p.idPeriodo) { <option [ngValue]="p.idPeriodo">#{{ p.idPeriodo }} · {{ p.fechaInicio | date:'dd/MM/yyyy':'UTC' }} al {{ p.fechaFin | date:'dd/MM/yyyy':'UTC' }} · Saldo {{ p.saldoDias }} días</option> }</select></label>
+      <label>¿Qué necesitas corregir? <select name="tipo" [(ngModel)]="ajuste.tipoMovimiento"><option value="AJUSTE_POSITIVO">Sumar días</option><option value="AJUSTE_NEGATIVO">Restar días</option></select></label>
+      <label>Días <input type="text" inputmode="decimal" name="dias" [(ngModel)]="ajuste.dias" pattern="[0-9]{1,4}([.][0-9]{1,2})?" required></label><label>Motivo <textarea name="motivo" [(ngModel)]="ajuste.motivo" maxlength="500" required></textarea></label>
+    </div><button type="submit" class="accion">{{ guardando() ? 'Guardando…' : 'Registrar ajuste' }}</button> <button type="button" (click)="formulario.set(null)">Cancelar</button></fieldset></form>
+  }
+  @if (datos().tabla; as lista) {
+    <h2>{{ puedeGestionar ? 'Saldos de empleados' : 'Saldos de mi equipo directo' }}</h2>
+    <p class="ayuda">Una fila por período registrado. Los empleados sin períodos no aparecen en esta tabla. El saldo contable incluye consumos y ajustes; consulta el detalle del empleado para ver sus días reservados y disponibles.</p>
+    <div class="tabla tabla-saldos" tabindex="0" role="region" aria-label="Tabla de saldos de vacaciones">
+      <table><thead><tr><th>Empleado</th><th>Período</th><th>Desde</th><th>Hasta</th><th>Asignados</th><th>Histórico</th><th>Consumidos</th><th>Devueltos</th><th>Ajuste neto</th><th>Utilizados</th><th>Saldo</th><th>Detalle</th></tr></thead><tbody>
+        @for (p of lista.items; track p.idPeriodo) {
+          <tr><td>{{ p.nombreCompleto }} <small>#{{ p.idEmpleado }}</small></td><td>#{{ p.idPeriodo }}</td><td>{{ p.fechaInicio | date:'dd/MM/yyyy':'UTC' }}</td><td>{{ p.fechaFin | date:'dd/MM/yyyy':'UTC' }}</td><td>{{ p.diasAsignados }}</td><td>{{ p.diasUtilizadosIniciales }}</td><td>{{ p.diasConsumidos }}</td><td>{{ p.diasDevueltos }}</td><td>{{ p.ajusteNeto }}</td><td>{{ p.diasUtilizados }}</td><td><strong>{{ p.saldoDias }}</strong></td><td><button type="button" (click)="verEmpleado(p.idEmpleado)">Ver empleado</button></td></tr>
+        } @empty { <tr><td colspan="12">No hay períodos que coincidan con la consulta.</td></tr> }
+      </tbody></table>
+    </div>
+  }
+  @if (datos().saldo; as saldo) {
+    <div class="contexto-empleado"><span class="eyebrow">Estás consultando</span><h2>{{ nombreEmpleado }} <small>#{{ saldo.idEmpleado }}</small></h2></div>
+    <div class="resumen">
+      <article class="saldo-destacado"><span>Días disponibles</span><strong>{{ saldo.diasDisponibles }} días</strong><p>Saldo después de apartar las solicitudes pendientes.</p></article>
+      <article><span>Días reservados</span><strong>{{ saldo.diasReservados }} días</strong><p>Solicitudes pendientes o en revisión. Aún no son consumo definitivo.</p></article>
+      <article><span>Saldo contable</span><strong>{{ saldo.saldoTotal }} días</strong><p>Días restantes antes de descontar las reservas.</p></article>
+    </div>
+    <p class="ayuda">Las solicitudes pendientes y en revisión reservan días. La disponibilidad para fechas específicas se valida al enviar la solicitud.</p>
+    @if (saldo.requiereConciliacion) { <aside class="advertencia" role="alert"><strong>Se requiere conciliación de RRHH</strong><ul>@for (incidencia of saldo.incidencias; track $index) { <li>{{ incidencia }}</li> }</ul></aside> }
+    @if (vista() === 'saldo') {
+      @if (!empleadoConsultado && usuario?.idEmpleado) { <a class="accion" routerLink="/solicitudes/nueva">Solicitar vacaciones</a> }
+      <header><h2>Saldos por período</h2>@if (puedeGestionar) { <div class="acciones-gestion"><button type="button" class="accion" [disabled]="guardando()" (click)="abrirPeriodo()">Agregar período</button><button type="button" [disabled]="guardando()" (click)="cambiarVista('periodos')">Administrar períodos</button></div> }</header>
+      <div class="tabla"><table><thead><tr><th>Período</th><th>Corte</th><th>Asignados</th><th>Histórico</th><th>Consumos</th><th>Devoluciones</th><th>Ajustes + / −</th><th>Saldo</th></tr></thead><tbody>
+        @for (p of saldo.periodos; track p.idPeriodo) { <tr><td>#{{ p.idPeriodo }} · {{ p.fechaInicio | date:'dd/MM/yyyy':'UTC' }} al {{ p.fechaFin | date:'dd/MM/yyyy':'UTC' }}</td><td>{{ (p.fechaCorteInicial | date:'dd/MM/yyyy':'UTC') || 'Sin corte' }}</td><td>{{ p.diasAsignados }}</td><td>{{ p.diasUtilizadosIniciales }}</td><td>{{ p.diasConsumidos }}</td><td>{{ p.diasDevueltos }}</td><td>{{ p.ajustesPositivos }} / {{ p.ajustesNegativos }}</td><td>{{ p.saldoDias }}</td></tr> }
+        @empty { <tr><td colspan="8">No hay períodos cargados. RRHH debe registrar el saldo reconocido.</td></tr> }
+      </tbody></table></div><p class="ayuda">Las reservas se muestran por empleado; todavía no están asignadas de forma definitiva a períodos.</p>
+    }
+  }
+  @if (datos().movimientos; as lista) {
+    <header><h2>Historial de movimientos</h2>@if (puedeGestionar) { <button type="button" class="accion" [disabled]="guardando() || !usuario?.idEmpleado || !datos().saldo?.periodos?.length" (click)="abrirAjuste()">Registrar ajuste</button> }</header>
+    <p class="ayuda">Los consumos y devoluciones provienen de las solicitudes. Para corregir días, registra un ajuste con su motivo; el historial se conserva.</p>
+    @if (puedeGestionar && !datos().saldo?.periodos?.length) { <p class="advertencia">Agrega un período en la pestaña Períodos antes de registrar ajustes.</p> }
+    @if (puedeGestionar && !usuario?.idEmpleado) { <p class="advertencia">Tu usuario necesita un empleado asociado para registrar ajustes.</p> }
+    <div class="tabla"><table><thead><tr><th>Registro</th><th>Fecha</th><th>Tipo</th><th>Período</th><th>Días</th><th>Solicitud</th><th>Motivo</th><th>Registrado por</th></tr></thead><tbody>
+      @for (m of lista.items; track m.idMovimiento) { <tr><td>#{{ m.idMovimiento }}</td><td>{{ m.createdAt | date:'dd/MM/yyyy HH:mm':'-0600' }}</td><td><span class="estado">{{ m.tipoMovimiento === 'CONSUMO' ? 'Vacaciones descontadas' : m.tipoMovimiento === 'DEVOLUCION' ? 'Días devueltos' : m.tipoMovimiento === 'AJUSTE_POSITIVO' ? 'Ajuste: suma de días' : 'Ajuste: resta de días' }}</span></td><td>#{{ m.idPeriodo }}</td><td>{{ m.dias }}</td><td>@if (m.idSolicitud) { <a [routerLink]="['/solicitudes', m.idSolicitud]">#{{ m.idSolicitud }}</a> } @else { — }</td><td>{{ m.motivo || '—' }}</td><td>Empleado #{{ m.idEmpleadoRegistro }}</td></tr> }
+      @empty { <tr><td colspan="8">No hay movimientos registrados.</td></tr> }
+    </tbody></table></div>
+  }
+  @if (datos().periodos; as lista) {
+    <header><h2>Períodos reconocidos</h2>@if (puedeGestionar) { <button class="accion" [disabled]="guardando()" (click)="abrirPeriodo()">Agregar período</button> }</header>
+    @if (puedeGestionar && !usuario?.idEmpleado) { <p class="advertencia">Tu usuario necesita un empleado activo asociado para registrar ajustes. Solicita a administración que lo vincule.</p> }
+    <div class="tabla"><table><thead><tr><th>Período</th><th>Asignados</th><th>Histórico</th><th>Corte</th><th>Observaciones</th>@if (puedeGestionar) { <th>Acciones</th> }</tr></thead><tbody>
+      @for (p of lista.items; track p.idPeriodo) { <tr><td>#{{ p.idPeriodo }} · {{ p.fechaInicio | date:'dd/MM/yyyy':'UTC' }} al {{ p.fechaFin | date:'dd/MM/yyyy':'UTC' }}</td><td>{{ p.diasAsignados }}</td><td>{{ p.diasUtilizadosIniciales }}</td><td>{{ (p.fechaCorteInicial | date:'dd/MM/yyyy':'UTC') || 'Sin corte' }}</td><td>{{ p.observaciones || '—' }}</td>@if (puedeGestionar) { <td><button [disabled]="guardando()" (click)="abrirPeriodo(p)">Editar</button> <button [disabled]="guardando() || !usuario?.idEmpleado" (click)="abrirAjuste(p)">Ajustar saldo</button></td> }</tr> }
+      @empty { <tr><td colspan="6">No hay períodos registrados.</td></tr> }
+    </tbody></table></div>
+  }
+  @if (datos().calendario; as lista) {
+    <div class="tabla"><table><thead><tr><th>Empleado</th><th>Desde</th><th>Hasta</th><th>Días</th><th>Estado</th><th>Solicitud</th></tr></thead><tbody>
+      @for (s of lista.items; track s.idSolicitud) { <tr><td>{{ s.empleado.nombre }} (#{{ s.empleado.idEmpleado }})</td><td>{{ s.fechaInicio | date:'dd/MM/yyyy':'UTC' }}</td><td>{{ s.fechaFin | date:'dd/MM/yyyy':'UTC' }}</td><td>{{ s.diasSolicitados }}</td><td>{{ s.estado }}</td><td>#{{ s.idSolicitud }}</td></tr> }
+      @empty { <tr><td colspan="6">No hay vacaciones en este rango.</td></tr> }
+    </tbody></table></div>
+  }
+  @if (vista() !== 'saldo' && !cargando() && (datos().tabla || datos().movimientos || datos().periodos || datos().calendario)) {
+    <nav class="paginacion" aria-label="Páginas de resultados"><button [disabled]="!puedeAnterior || guardando()" (click)="paginar(-1)">Anterior</button><span>Página {{ pagina }} · {{ total }} registros</span><button [disabled]="!puedeSiguiente || guardando()" (click)="paginar(1)">Siguiente</button></nav>
+  }
+</section>

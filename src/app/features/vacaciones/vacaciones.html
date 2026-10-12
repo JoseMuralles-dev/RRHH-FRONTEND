@@ -1,8 +1,13 @@
-﻿<section class="vacaciones">
+<section class="vacaciones">
   <header>
-    <div><h1>Mis vacaciones</h1><p>Consulta tus solicitudes y los períodos de descanso aprobados.</p></div>
+    <div><span class="eyebrow">Tu tiempo de descanso</span><h1>Mis vacaciones</h1><p>Consulta tus solicitudes y los períodos de descanso aprobados.</p></div>
     <a class="accion" routerLink="/solicitudes/nueva">Nueva solicitud</a>
   </header>
+    <a class="acceso-saldos" routerLink="/vacaciones/saldos">
+    <div><span class="eyebrow">Antes de solicitar</span><h2>Consulta tus días disponibles</h2><p>Revisa tu saldo y los días reservados. Si gestionas personal, también encontrarás aquí los saldos de tu equipo.</p></div>
+    <span class="enlace-accion">Ver saldos y seguimiento →</span>
+  </a>
+  <p class="guia-breve">Solicita tus días, sigue las aprobaciones y consulta tus próximas vacaciones desde aquí.</p>
   <nav class="vistas" aria-label="Consultas de vacaciones">
     <button type="button" [class.activa]="vista() === 'solicitudes'" [attr.aria-pressed]="vista() === 'solicitudes'" (click)="cambiarVista('solicitudes')">Mis solicitudes</button>
     <button type="button" [class.activa]="vista() === 'proximas'" [attr.aria-pressed]="vista() === 'proximas'" (click)="cambiarVista('proximas')">Próximas vacaciones</button>
@@ -28,7 +33,7 @@
   <div aria-live="polite">
     @if (cargando()) { <p class="mensaje" role="status">Cargando vacaciones…</p> }
     @else if (error()) { <p class="error" role="alert">{{ error() }}</p> }
-    @else if (visibles().length === 0) { <p class="mensaje">No hay vacaciones para esta consulta.</p> }
+    @else if (visibles().length === 0) { <div class="mensaje"><strong>No encontramos solicitudes con estos filtros.</strong><p>Prueba otro año o estado, o crea una nueva solicitud desde el botón de arriba.</p></div> }
     @else {
       <p class="ayuda">{{ visibles().length }} solicitud(es)</p>
       <div class="tabla">
