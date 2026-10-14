@@ -65,6 +65,8 @@ export interface KpiResultado {
 
   porcentajeCumplimiento: number | null;
 
+  pesoPorcentaje?: number;
+  aportePorcentaje?: number;
   puntosObtenidos: number;
 
   observacion: string | null;

@@ -13,7 +13,7 @@
       <section class="summary" aria-label="Resultado mensual">
         <div><small>Inspecciones registradas</small><strong>{{ r.inspeccionesRegistradas }} / 2</strong></div>
         <div><small>Promedio mensual</small><strong>{{ r.promedio === null ? 'Pendiente' : r.promedio + ' / 100' }}</strong></div>
-        <div><small>Aporte a la nota KPI</small><strong>{{ r.puntosKpi === null ? 'Pendiente' : r.puntosKpi + ' / 20' }}</strong></div>
+        <div><small>Aporte a la nota KPI</small><strong>{{ r.puntosKpi === null ? 'Pendiente' : r.puntosKpi + '% / 20%' }}</strong></div>
       </section>
       <p class="hint">Periodo consultado: {{ r.mes }}/{{ r.anio }} · Departamento #{{ r.idDepartamento }}. El aporte es el promedio de las dos notas × 20/100, sin redondeos ni descuentos de inventario.</p>
       @if (r.completo) {

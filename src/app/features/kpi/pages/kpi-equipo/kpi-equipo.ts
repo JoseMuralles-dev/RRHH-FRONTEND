@@ -315,7 +315,7 @@ export class KpiEquipo implements OnInit {
       }
     }
     const valores = [...metricas.values()].filter((v): v is number => v !== null);
-    return { porcentaje: valores.length ? valores.reduce((suma, v) => suma + v, 0) / valores.length : null,
+    return { porcentaje: valores.length ? Math.min(100, Math.max(0, this.notaFinal(empleado) ?? 0)) : null,
       validas: valores.length, total: metricas.size };
   }
   limitarPorcentaje(

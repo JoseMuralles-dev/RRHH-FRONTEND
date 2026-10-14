@@ -40,10 +40,10 @@ describe('Formulario 5S', () => {
     c.form.controls.fecha.setValue('2026-10-09'); service.guardar.mockReturnValue(new Subject());
     c.guardar(); c.guardar(); expect(service.guardar).toHaveBeenCalledTimes(1);
   });
-  it('muestra 18.5 puntos sin aproximarlos y cierra el formulario al completar dos inspecciones', () => {
+  it('muestra 18.5% sin aproximarlos y cierra el formulario al completar dos inspecciones', () => {
     service.consultar.mockReturnValue(of({ ...vacio, completo: true, promedio: 92.5, puntosKpi: 18.5, inspeccionesRegistradas: 2 }));
     const f = abrir();
-    expect(f.nativeElement.textContent).toContain('18.5 / 20');
+    expect(f.nativeElement.textContent).toContain('18.5% / 20%');
     expect(f.nativeElement.querySelectorAll('.criterion').length).toBe(0);
     f.componentInstance.guardar(); expect(service.guardar).not.toHaveBeenCalled();
   });

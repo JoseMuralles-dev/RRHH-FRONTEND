@@ -260,14 +260,14 @@
                   <div>
 
                     <span>
-                      Nota final
+                      Porcentaje final
                     </span>
 
                     <strong>
                       {{
                         evaluacion.notaFinal
                           | number:'1.2-2'
-                      }}
+                      }}%
                     </strong>
 
                   </div>
@@ -276,14 +276,14 @@
                   <div>
 
                     <span>
-                      Puntaje base
+                      Porcentaje acumulado
                     </span>
 
                     <strong>
                       {{
                         evaluacion.puntajeBase
                           | number:'1.2-2'
-                      }}
+                      }}%
                     </strong>
 
                   </div>
@@ -401,14 +401,14 @@
             <div>
 
               <span>
-                Nota final
+                Porcentaje final
               </span>
 
               <strong>
                 {{
                   evaluacion.notaFinal
                     | number:'1.2-2'
-                }}
+                }}%
               </strong>
 
             </div>
@@ -417,14 +417,14 @@
             <div>
 
               <span>
-                Puntaje base
+                Porcentaje acumulado
               </span>
 
               <strong>
                 {{
                   evaluacion.puntajeBase
                     | number:'1.2-2'
-                }}
+                }}%
               </strong>
 
             </div>
@@ -440,7 +440,7 @@
                 {{
                   evaluacion.penalizacionTotal
                     | number:'1.2-2'
-                }}
+                }}%
               </strong>
 
             </div>
@@ -456,7 +456,7 @@
                 {{
                   evaluacion.metaGlobal
                     | number:'1.2-2'
-                }}
+                }}%
               </strong>
 
             </div>
@@ -573,14 +573,14 @@
                 <div class="points-row">
 
                   <span>
-                    Puntos
+                    Aporte a la nota final
                   </span>
 
                   <strong>
                     {{
                       resultado.puntosObtenidos
                         | number:'1.2-2'
-                    }}
+                    }}% <small>de {{ resultado.pesoPorcentaje }}%</small>
                   </strong>
 
                 </div>

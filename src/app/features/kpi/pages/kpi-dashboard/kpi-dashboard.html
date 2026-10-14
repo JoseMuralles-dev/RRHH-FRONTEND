@@ -192,7 +192,7 @@
           <div class="summary-card principal">
 
             <span class="summary-label">
-              Nota final
+              Porcentaje final
             </span>
 
             <strong class="summary-value">
@@ -200,14 +200,14 @@
               {{
                 evaluacionPrincipal.notaFinal
                   | number:'1.2-2'
-              }}
+              }}%
 
             </strong>
 
             <span>
               de
               {{
-                evaluacionPrincipal.metaGlobal
+                100
               }}
             </span>
 
@@ -217,7 +217,7 @@
           <div class="summary-card">
 
             <span class="summary-label">
-              Puntaje base
+              Porcentaje acumulado
             </span>
 
             <strong class="summary-value">
@@ -225,7 +225,7 @@
               {{
                 evaluacionPrincipal.puntajeBase
                   | number:'1.2-2'
-              }}
+              }}%
 
             </strong>
 
@@ -243,7 +243,7 @@
               {{
                 evaluacionPrincipal.penalizacionTotal
                   | number:'1.2-2'
-              }}
+              }}%
 
             </strong>
 
@@ -400,7 +400,7 @@
               <div class="points">
 
                 <span>
-                  Puntos obtenidos
+                  Aporte a la nota final
                 </span>
 
                 <strong>
@@ -408,7 +408,7 @@
                   {{
                     resultado.puntosObtenidos
                       | number:'1.2-2'
-                  }}
+                  }}% <small>de {{ resultado.pesoPorcentaje }}%</small>
 
                 </strong>
 

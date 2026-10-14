@@ -18,8 +18,8 @@ import { KpiDashboardResponse, KpiEvaluacion } from '../../models/dashboard-kpi.
       </svg>
       <p class="estado">{{ cumplimiento.porcentaje === null ? 'Sin datos calculables' : cumplimiento.validas < cumplimiento.total ? 'Datos parciales' : 'Cumplimiento de indicadores' }}</p>
       @if (evaluacion?.estado === 'PENDIENTE_5S') { <p class="estado">Nota provisional: faltan inspecciones 5S.</p> }
-      </div><div class="resultados"><dl><div><dt>Nota final</dt><dd>{{ evaluacion ? (evaluacion.notaFinal | number:'1.2-2') : '—' }}</dd></div>
-        <div><dt>Puntaje base</dt><dd>{{ evaluacion ? (evaluacion.puntajeBase | number:'1.2-2') : '—' }}</dd></div></dl>
+      </div><div class="resultados"><dl><div><dt>Porcentaje final</dt><dd>{{ evaluacion ? (evaluacion.notaFinal | number:'1.2-2') + '%' : '—' }}</dd></div>
+        <div><dt>Porcentaje acumulado</dt><dd>{{ evaluacion ? (evaluacion.puntajeBase | number:'1.2-2') + '%' : '—' }}</dd></div></dl>
       <p>{{ dashboard.diasConDatos }} días con información</p>
       <button type="button" (click)="verDetalle.emit()">Ver detalle</button></div>
     </article>
@@ -49,7 +49,7 @@ export class FichaDesempeno {
       }
     }
     const valores = [...metricas.values()].filter((v): v is number => v !== null);
-    return { porcentaje: valores.length ? valores.reduce((a, b) => a + b, 0) / valores.length : null, validas: valores.length, total: metricas.size };
+    return { porcentaje: valores.length ? Math.min(100, Math.max(0, this.evaluacion?.notaFinal ?? 0)) : null, validas: valores.length, total: metricas.size };
   }
   get limite() { return Math.min(100, Math.max(0, this.cumplimiento.porcentaje ?? 0)); }
 }

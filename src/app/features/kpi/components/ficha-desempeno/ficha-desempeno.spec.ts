@@ -10,9 +10,9 @@ describe('Ficha personal de desempeño', () => {
     } as KpiDashboardResponse;
     const f = TestBed.createComponent(FichaDesempeno); f.componentRef.setInput('dashboard', dashboard); f.detectChanges(); return f;
   }
-  it('muestra porcentaje independiente de la nota, nombre y datos parciales', () => {
+  it('muestra porcentaje final ponderado, nombre y datos parciales', () => {
     const f = abrir([92.88, null]);
-    expect(f.nativeElement.querySelector('svg text').textContent).toContain('92.88%');
+    expect(f.nativeElement.querySelector('svg text').textContent).toContain('65.1%');
     expect(f.nativeElement.textContent).toContain('Datos parciales');
     expect(f.nativeElement.textContent).toContain('65.10');
     expect(f.nativeElement.textContent).toContain('Oscar Daniel');
@@ -23,10 +23,10 @@ describe('Ficha personal de desempeño', () => {
     expect(f.nativeElement.querySelector('svg text').textContent).toBe('—');
     expect(f.nativeElement.querySelector('.avance')).toBeNull();
   });
-  it('conserva cero y porcentajes mayores de cien, limitando solo el arco', () => {
+  it('usa la nota ponderada en lugar del promedio simple', () => {
     const f = abrir([0, 240]);
-    expect(f.nativeElement.querySelector('svg text').textContent).toContain('120%');
-    expect(f.nativeElement.querySelector('.avance').getAttribute('stroke-dasharray')).toBe('100 100');
+    expect(f.nativeElement.querySelector('svg text').textContent).toContain('65.1%');
+    expect(f.nativeElement.querySelector('.avance').getAttribute('stroke-dasharray')).toBe('65.1 100');
   });
   it('emite ver detalle sin usar un enlace que cambie la ruta', () => {
     const f = abrir([80]);
