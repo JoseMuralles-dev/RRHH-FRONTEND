@@ -18,6 +18,7 @@ export const routes: Routes = [
   {
     path: '',
     component: MainLayoutComponent,
+    canActivate: [authGuard],
 
     children: [
       { path: 'expedientes', canActivate: [authGuard], loadChildren: () => import('./features/expedientes/expedientes.routes').then(m => m.EXPEDIENTES_ROUTES) },
