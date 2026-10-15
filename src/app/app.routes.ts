@@ -21,6 +21,7 @@ export const routes: Routes = [
     canActivate: [authGuard],
 
     children: [
+      { path: 'mi-perfil', loadComponent: () => import('./features/mi-perfil/mi-perfil').then(m => m.MiPerfil) },
       { path: 'expedientes', canActivate: [authGuard], loadChildren: () => import('./features/expedientes/expedientes.routes').then(m => m.EXPEDIENTES_ROUTES) },
       {
         path: 'vacaciones/saldos',
