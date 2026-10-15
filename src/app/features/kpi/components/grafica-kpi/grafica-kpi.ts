@@ -16,6 +16,7 @@ export class GraficaKpi {
     const indicadores = new Map<number, { id: number; nombre: string; rows: KpiBarRow[] }>();
     for (const item of this.empleados) {
       for (const resultado of item.dashboard.evaluaciones?.[0]?.resultados ?? []) {
+        if (resultado.asignacionProvisional) continue;
         let indicador = indicadores.get(resultado.idMetrica);
         if (!indicador) {
           indicador = { id: resultado.idMetrica, nombre: resultado.nombre, rows: [] };

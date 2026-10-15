@@ -37,6 +37,7 @@ export interface KpiPuntoDiario {
 }
 
 export interface KpiEvaluacion {
+  tiempoProvisional?: boolean;
   idEvaluacion: number;
   idDepartamento: number;
 
@@ -60,7 +61,8 @@ export interface KpiResultado {
   nombre: string;
   unidadMedida: string;
 
-  valorObtenido: number;
+  valorObtenido: number | null;
+  asignacionProvisional?: boolean;
   metaAplicada: number;
 
   porcentajeCumplimiento: number | null;

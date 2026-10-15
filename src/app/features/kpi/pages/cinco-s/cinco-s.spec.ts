@@ -40,8 +40,8 @@ describe('Formulario 5S', () => {
     c.form.controls.fecha.setValue('2026-10-09'); service.guardar.mockReturnValue(new Subject());
     c.guardar(); c.guardar(); expect(service.guardar).toHaveBeenCalledTimes(1);
   });
-  it('muestra 18.5% sin aproximarlos y cierra el formulario al completar dos inspecciones', () => {
-    service.consultar.mockReturnValue(of({ ...vacio, completo: true, promedio: 92.5, puntosKpi: 18.5, inspeccionesRegistradas: 2 }));
+  it('muestra 18.5% sin aproximarlos y cierra el formulario al completar cuatro inspecciones', () => {
+    service.consultar.mockReturnValue(of({ ...vacio, completo: true, promedio: 92.5, puntosKpi: 18.5, inspeccionesRegistradas: 4 }));
     const f = abrir();
     expect(f.nativeElement.textContent).toContain('18.5% / 20%');
     expect(f.nativeElement.querySelectorAll('.criterion').length).toBe(0);
@@ -49,13 +49,21 @@ describe('Formulario 5S', () => {
   });
 
   it('recalcula el periodo consultado y muestra las evaluaciones creadas', () => {
-    service.consultar.mockReturnValue(of({ ...vacio, completo: true, promedio: 92.5, puntosKpi: 18.5, inspeccionesRegistradas: 2 }));
+    service.consultar.mockReturnValue(of({ ...vacio, completo: true, promedio: 92.5, puntosKpi: 18.5, inspeccionesRegistradas: 4 }));
     const f = abrir(), c = f.componentInstance;
-    service.recalcular.mockReturnValue(of({ resumen: { ...vacio, completo: true, promedio: 92.5, puntosKpi: 18.5, inspeccionesRegistradas: 2 }, evaluacionesCreadas: 12, evaluacionesActualizadas: 0, empleadosSinDatos: [] }));
+    service.recalcular.mockReturnValue(of({ resumen: { ...vacio, completo: true, promedio: 92.5, puntosKpi: 18.5, inspeccionesRegistradas: 4 }, evaluacionesCreadas: 12, evaluacionesActualizadas: 0, empleadosSinDatos: [] }));
     c.filtro.controls.periodo.setValue('2026-11');
     c.recalcular();
     expect(service.recalcular).toHaveBeenCalledWith(3, 2026, 10);
     expect(c.aviso()).toContain('12 creadas');
     expect(c.saving()).toBe(false);
+  });
+
+  it.each([2, 3])('propone la siguiente inspeccion despues de %s registros', n => {
+    service.consultar.mockReturnValue(of({ ...vacio, inspeccionesRequeridas: 4,
+      inspeccionesRegistradas: n, inspecciones: Array.from({ length: n }, (_, i) => ({ idInspeccion: i + 1, numero: i + 1 })) }));
+    const f = abrir();
+    expect(f.componentInstance.form.controls.numero.value).toBe(n + 1);
+    expect(f.nativeElement.querySelectorAll('.criterion').length).toBe(20);
   });
 });

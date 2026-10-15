@@ -4,7 +4,7 @@ import { API } from '../../../core/config/apis';
 
 export interface CategoriaCincoS { id: number; nombre: string; criterios: { id: number; concepto: string; pregunta: string }[] }
 export interface InspeccionCincoS { idInspeccion: number; numero: number; fecha: string; sucursal: string; encargado: string; inspector: string; puntos: number[]; total: number; observaciones: string | null }
-export interface ResumenCincoS { idDepartamento: number; anio: number; mes: number; inspecciones: InspeccionCincoS[]; completo: boolean; promedio: number | null; puntosKpi: number | null; inspeccionesRegistradas: number; evaluacionesCreadas?: number; empleadosSinDatos?: number[]; evaluacionesActualizadas?: number }
+export interface ResumenCincoS { inspeccionesRequeridas?: number; idDepartamento: number; anio: number; mes: number; inspecciones: InspeccionCincoS[]; completo: boolean; promedio: number | null; puntosKpi: number | null; inspeccionesRegistradas: number; evaluacionesCreadas?: number; empleadosSinDatos?: number[]; evaluacionesActualizadas?: number }
 export interface CatalogoCincoS { categorias: CategoriaCincoS[]; escala: string[]; departamentos: { idDepartamento: number; nombreDepartamento: string }[] }
 export interface GuardarCincoS { idDepartamento: number; numero: number; fecha: string; sucursal: string; encargado: string; puntos: number[]; observaciones: string }
 @Injectable({ providedIn: 'root' })

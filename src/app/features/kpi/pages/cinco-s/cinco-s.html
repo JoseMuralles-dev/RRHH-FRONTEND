@@ -1,5 +1,5 @@
 <section class="page">
-  <header><div><span class="eyebrow">EVALUACIÓN POR DEPARTAMENTO</span><h1>Orden y limpieza · 5S</h1><p>Dos inspecciones mensuales. Un aporte del 20% a la nota KPI.</p></div><a routerLink="/kpis/equipo">Volver a KPI</a></header>
+  <header><div><span class="eyebrow">EVALUACIÓN POR DEPARTAMENTO</span><h1>Orden y limpieza · 5S</h1><p>Cuatro inspecciones mensuales. Un aporte del 20% a la nota KPI.</p></div><a routerLink="/kpis/equipo">Volver a KPI</a></header>
   @if (error()) { <p class="error" role="alert">{{ error() }} @if (!catalogo()) { <button type="button" (click)="cargarCatalogo()">Reintentar</button> }</p> }
   @if (aviso()) { <p class="success" role="status">{{ aviso() }}</p> }
   @if (catalogo(); as c) {
@@ -11,11 +11,11 @@
     @if (!c.departamentos.length) { <p>No hay departamentos disponibles para su usuario.</p> }
     @if (resumen(); as r) {
       <section class="summary" aria-label="Resultado mensual">
-        <div><small>Inspecciones registradas</small><strong>{{ r.inspeccionesRegistradas }} / 2</strong></div>
+        <div><small>Inspecciones registradas</small><strong>{{ r.inspeccionesRegistradas }} / {{ r.inspeccionesRequeridas ?? 4 }}</strong></div>
         <div><small>Promedio mensual</small><strong>{{ r.promedio === null ? 'Pendiente' : r.promedio + ' / 100' }}</strong></div>
         <div><small>Aporte a la nota KPI</small><strong>{{ r.puntosKpi === null ? 'Pendiente' : r.puntosKpi + '% / 20%' }}</strong></div>
       </section>
-      <p class="hint">Periodo consultado: {{ r.mes }}/{{ r.anio }} · Departamento #{{ r.idDepartamento }}. El aporte es el promedio de las dos notas × 20/100, sin redondeos ni descuentos de inventario.</p>
+      <p class="hint">Periodo consultado: {{ r.mes }}/{{ r.anio }} · Departamento #{{ r.idDepartamento }}. El aporte es el promedio de las {{ r.inspeccionesRequeridas ?? 4 }} notas × 20/100, sin redondeos ni descuentos de inventario.</p>
       @if (r.completo) {
         <p><button type="button" class="primary" [disabled]="saving() || loading()" (click)="recalcular()">{{ saving() ? 'Procesando…' : 'Recalcular aporte 5S en KPI' }}</button></p>
         <p class="hint">Actualiza las notas existentes y crea las evaluaciones faltantes con las métricas operativas disponibles del mes.</p>
@@ -61,7 +61,7 @@
           </fieldset>
         </form>
       }
-    } @else if (!loading() && c.departamentos.length) { <p class="hint">Seleccione departamento y mes para registrar o consultar las dos inspecciones.</p> }
+    } @else if (!loading() && c.departamentos.length) { <p class="hint">Seleccione departamento y mes para registrar o consultar las cuatro inspecciones.</p> }
   }
   @if (loading()) { <p role="status">Cargando…</p> }
 </section>
