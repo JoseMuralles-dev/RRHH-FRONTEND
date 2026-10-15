@@ -1,5 +1,5 @@
 ﻿import { HttpErrorResponse } from '@angular/common/http';
-import { Component } from '@angular/core';
+import { Component, signal, DestroyRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   FormBuilder,
@@ -8,6 +8,8 @@ import {
   Validators
 } from '@angular/forms';
 import { Router } from '@angular/router';
+import { finalize } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { AuthService } from '../../../../core/services/auth';
 
@@ -27,9 +29,10 @@ export class LoginComponent {
 
   loginForm: FormGroup;
 
-  loading = false;
+  readonly loading = signal(false);
+  private readonly destroyRef = inject(DestroyRef);
 
-  errorMessage = '';
+  readonly errorMessage = signal('');
 
   constructor(
     private fb: FormBuilder,
@@ -59,6 +62,8 @@ export class LoginComponent {
 
   login(): void {
 
+    if (this.loading()) return;
+
     if (this.loginForm.invalid) {
 
       this.loginForm.markAllAsTouched();
@@ -67,16 +72,17 @@ export class LoginComponent {
 
     }
 
-    this.loading = true;
-    this.errorMessage = '';
+    this.loading.set(true);
+    this.errorMessage.set('');
 
     this.authService
       .login(this.loginForm.value)
+      .pipe(takeUntilDestroyed(this.destroyRef), finalize(() => this.loading.set(false)))
       .subscribe({
 
         next: () => {
 
-          this.loading = false;
+          this.loading.set(false);
 
           this.router.navigate([
             '/dashboard'
@@ -88,17 +94,17 @@ export class LoginComponent {
 
 
 
-          this.loading = false;
+          this.loading.set(false);
 
-          this.errorMessage = error instanceof HttpErrorResponse
+          this.errorMessage.set(error instanceof HttpErrorResponse
             ? error.status === 0
-              ? 'No se pudo conectar con el servidor. Revisa el túnel del backend y CORS.'
+              ? 'No se pudo conectar con el servidor. Intenta nuevamente.'
               : error.status === 401
-                ? 'Acceso rechazado. Revisa tus credenciales y el acceso al túnel del backend.'
+                ? 'Usuario o contraseña inválidos.'
                 : error.status === 400
                   ? 'Revisa el correo y la contraseña ingresados.'
-                  : 'No se pudo iniciar sesión. Revisa la disponibilidad y el acceso al backend.'
-            : 'Ocurrió un error inesperado al iniciar sesión.';
+                  : 'No se pudo iniciar sesión. Intenta nuevamente más tarde.'
+            : 'Ocurrió un error inesperado al iniciar sesión.');
 
         }
 

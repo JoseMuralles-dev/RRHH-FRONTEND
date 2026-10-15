@@ -324,7 +324,10 @@
               </div>
 
 
-              <div class="value-section">
+              @if (resultado.asignacionProvisional) {
+  <p class="observacion">Tiempo efectivo: pendiente de medicion. 25% asignado provisionalmente.</p>
+} @else {
+<div class="value-section">
 
                 <strong>
 
@@ -397,7 +400,8 @@
               </div>
 
 
-              <div class="points">
+              }
+<div class="points">
 
                 <span>
                   Aporte a la nota final

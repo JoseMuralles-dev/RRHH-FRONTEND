@@ -1,11 +1,12 @@
 import { TestBed } from '@angular/core/testing';
+import { GraficaKpi } from '../grafica-kpi/grafica-kpi';
 import { FichaDesempeno } from './ficha-desempeno';
 import { KpiDashboardResponse } from '../../models/dashboard-kpi.model';
 describe('Ficha personal de desempeño', () => {
-  function abrir(valores: (number | null)[]) {
+  function abrir(valores: (number | null)[], provisional = false) {
     const dashboard = {
       idEmpleado: 60, empleado: { nombre: 'Oscar Daniel', departamento: 'Bodega' }, diasConDatos: 21,
-      evaluaciones: [{ notaFinal: 65.10, puntajeBase: 65.10, estado: 'CALCULADA',
+      evaluaciones: [{ tiempoProvisional: provisional, notaFinal: 65.10, puntajeBase: 65.10, estado: 'CALCULADA',
         resultados: valores.map((v, i) => ({ idMetrica: i, porcentajeCumplimiento: v })) }],
     } as KpiDashboardResponse;
     const f = TestBed.createComponent(FichaDesempeno); f.componentRef.setInput('dashboard', dashboard); f.detectChanges(); return f;
@@ -35,5 +36,21 @@ describe('Ficha personal de desempeño', () => {
     f.nativeElement.querySelector('button').click();
     expect(listener).toHaveBeenCalledOnce();
     expect(f.nativeElement.querySelector('a[href]')).toBeNull();
+  });
+
+  it('mantiene la ficha sin el aviso de tiempo provisional', () => {
+    const f = abrir([75, null], true);
+    expect(f.nativeElement.textContent).not.toContain('25% provisional de Tiempo');
+    expect(f.nativeElement.querySelector('svg text').textContent).toContain('65.1%');
+  });
+  it('omite asignaciones provisionales en graficas de cumplimiento medido', () => {
+    const grafica = new GraficaKpi();
+    grafica.empleados = [{ empleado: { idEmpleado: 1, nombre: 'Ana' }, dashboard: { evaluaciones: [{
+      resultados: [
+        { idMetrica: 1, nombre: 'Lineas', porcentajeCumplimiento: 75 },
+        { idMetrica: -1, nombre: 'Tiempo', porcentajeCumplimiento: null, asignacionProvisional: true }
+      ]
+    }] } }] as any;
+    expect(grafica.indicadores.map(i => i.nombre)).toEqual(['Lineas']);
   });
 });

@@ -60,7 +60,7 @@ export class CincoS {
     });
   }
   private preparar(r: ResumenCincoS) {
-    const numero = r.inspecciones.some(i => i.numero === 1) ? 2 : 1;
+    const numero = Array.from({ length: r.inspeccionesRequeridas ?? 4 }, (_, i) => i + 1).find(n => !r.inspecciones.some(i => i.numero === n)) ?? 0;
     const periodo = r.anio + '-' + String(r.mes).padStart(2, '0');
     const hoy = hoyGuatemala();
     this.form.reset({ numero, fecha: hoy.startsWith(periodo) ? hoy : periodo + '-01', sucursal: '', encargado: '', observaciones: '', puntos: Array(20).fill(null) });
@@ -94,7 +94,7 @@ export class CincoS {
     this.service.guardar({ ...v, idDepartamento: r.idDepartamento, puntos: v.puntos as number[] }).pipe(takeUntilDestroyed(this.destroyRef), finalize(() => this.saving.set(false))).subscribe({
       next: actualizado => {
         this.resumen.set(actualizado); this.preparar(actualizado);
-        this.aviso.set(actualizado.completo ? this.mensajeActualizacion(actualizado) : 'Inspección registrada. Falta una inspección para completar el aporte mensual.');
+        this.aviso.set(actualizado.completo ? this.mensajeActualizacion(actualizado) : 'Inspección registrada. Pendientes: ' + Math.max(0, (actualizado.inspeccionesRequeridas ?? 4) - actualizado.inspeccionesRegistradas) + '.');
       },
       error: e => this.error.set(errorDepartamento(e)),
     });

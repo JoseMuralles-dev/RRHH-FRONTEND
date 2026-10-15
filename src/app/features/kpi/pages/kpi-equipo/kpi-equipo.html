@@ -201,6 +201,7 @@
             "
           >
 
+            
             <div class="employee-header">
 
               <div
@@ -499,7 +500,10 @@
                 </div>
 
 
-                <div class="kpi-value">
+                @if (resultado.asignacionProvisional) {
+  <p class="observacion">Tiempo efectivo: pendiente de medicion. 25% asignado provisionalmente.</p>
+} @else {
+<div class="kpi-value">
 
                   <strong>
 
@@ -570,7 +574,8 @@
                 </div>
 
 
-                <div class="points-row">
+                }
+<div class="points-row">
 
                   <span>
                     Aporte a la nota final
