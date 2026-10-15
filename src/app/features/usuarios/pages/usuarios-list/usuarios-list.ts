@@ -40,7 +40,7 @@ export class UsuariosList
     const normalizar = (texto: string) => texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
     const consulta = normalizar(this.busqueda().trim());
     return this.usuarios().filter(usuario => normalizar([
-      usuario.correo, usuario.empleado?.primerNombre, usuario.empleado?.primerApellido,
+      usuario.correo, usuario.empleado?.primerNombre, usuario.empleado?.segundoNombre, usuario.empleado?.primerApellido, usuario.empleado?.segundoApellido,
       usuario.rol?.nombreRol
     ].filter(Boolean).join(' ')).includes(consulta));
   });
