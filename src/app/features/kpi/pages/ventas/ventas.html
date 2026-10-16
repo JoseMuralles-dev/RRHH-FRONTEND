@@ -1,0 +1,59 @@
+<section class="ventas">
+  <header class="cabecera"><div><span class="eyebrow">DESEMPEÑO COMERCIAL</span><h1>KPI de Ventas</h1><p>Consulta tus resultados y el avance de cada indicador.</p></div></header>
+  <fieldset class="filtros" [disabled]="guardando()">
+    @if (nivel >= 2) { <label>Vista<select [(ngModel)]="vista" (ngModelChange)="cambiarVista()"><option value="equipo">{{ nivel >= 3 ? 'Vendedores de Ventas' : 'Mi equipo de Ventas' }}</option>@if (usuario?.idEmpleado) {<option value="propio">Mi desempeño en Ventas</option>}</select></label> }
+    <label>Mes de evaluación<input type="month" [(ngModel)]="periodo" min="2000-01" [max]="hoy.slice(0,7)" (change)="cargar()"></label>
+    @if (vista === 'equipo') { <label>Vendedor<select [ngModel]="seleccionado()" (ngModelChange)="elegir($event)"><option [ngValue]="0">Todos los vendedores</option>@for (e of vendedores(); track e.idEmpleado) {<option [ngValue]="e.idEmpleado">{{ e.nombre }}</option>}</select></label> }
+    <button type="button" (click)="cargar()" [disabled]="cargando()">{{ cargando() ? 'Consultando...' : 'Actualizar resultados' }}</button>
+  </fieldset>
+  @if (errorCatalogo()) {<div role="alert" class="alerta">{{ errorCatalogo() }} <button (click)="catalogo()">Reintentar listado</button></div>}
+  @if (error()) { <div role="alert" class="alerta">{{ error() }} <button [disabled]="guardando()" (click)="cargar()">Reintentar consulta</button></div> }
+  @if (aviso()) { <p role="status" class="exito">{{ aviso() }}</p> }
+  @if (errorFormulario()) { <p role="alert" class="alerta">{{ errorFormulario() }}</p> }
+  @if (cargando()) { <p role="status">Consultando resultados del período...</p> }
+  @if (datos(); as d) {
+    <p class="contexto">Del {{ d.periodo.fechaInicio }} al {{ d.periodo.fechaFin }} · {{ d.periodo.provisional ? 'Avance provisional del mes' : 'Consulta de mes anterior' }}</p>
+    @if (!visibles().length) { <div class="vacio">No hay vendedores autorizados para esta selección.</div> }
+    <div class="tarjetas" [class.individual]="seleccionado() > 0 || vista === 'propio'">
+      @for (e of visibles(); track e.idEmpleado) {
+        <article class="tarjeta">
+          <header><div><h2>{{ e.nombre || ('Empleado #' + e.idEmpleado) }}</h2><span>Ventas · Empleado #{{ e.idEmpleado }}</span></div><span class="badge">{{ e.cerrado ? 'Cerrada' : estado(e.estado) }}</span></header>
+          <div class="resumen">
+            <div class="medidor" [attr.aria-label]="e.notaFinal === null ? 'Sin nota final: evaluacion incompleta' : 'Nota final: ' + e.notaFinal + '%'" role="img">
+              <svg viewBox="0 0 220 125" aria-hidden="true"><path class="fondo" d="M 20 110 A 90 90 0 0 1 200 110"/><path class="avance" d="M 20 110 A 90 90 0 0 1 200 110" pathLength="100" [attr.stroke-dasharray]="arco(e.notaFinal) + ' 100'"/></svg>
+              <strong>{{ e.notaFinal === null ? '—' : e.notaFinal + '%' }}</strong>
+            </div>
+            <div><h3>{{ e.notaFinal === null ? 'Nota pendiente' : 'Porcentaje final' }}</h3><p>{{ e.notaFinal === null ? 'Faltan datos, metas o reglas para completar la evaluacion.' : (e.cerrado ? 'Resultado historico conservado.' : 'Suma de los aportes de los cinco indicadores.') }}</p>
+            @if (nivel >= 2 && vista === 'equipo' && !e.cerrado) {<button [disabled]="guardando() || e.notaFinal === null" (click)="guardarEvaluacion(e)">{{ guardando() ? 'Guardando...' : 'Guardar evaluacion' }}</button>}</div>
+          </div>
+          @if (e.resultados.length) {
+            <div class="tabla"><table><thead><tr><th>Indicador</th><th>Medido</th><th>Meta / referencia</th><th>Aporte</th></tr></thead><tbody>
+              @for (r of e.resultados; track r.codigo) {
+                <tr><td><strong>{{ nombres[r.codigo] || r.codigo }}</strong><small>{{ estado(r.estado) }}</small>@if (r.mesesFaltantes.length) {<small>Meses sin meta: {{ r.mesesFaltantes.join(', ') }}</small>}@if (r.explicacion) {<small>{{ r.explicacion }}</small>}</td>
+                  <td>{{ r.valorObtenido ?? '—' }}{{ r.valorObtenido !== null && (r.codigo === 'VEN_NOTAS_CREDITO' || r.codigo === 'VEN_CARTERA_SANA') ? '%' : '' }}</td><td>{{ r.metaAplicada ?? '—' }}{{ r.codigo === 'VEN_NOTAS_CREDITO' ? '%' : '' }}</td><td><strong>{{ r.puntos === null ? '—' : r.puntos + '%' }}</strong><small>Máximo {{ r.pesoPorcentaje }}%</small></td></tr>
+              }
+            </tbody></table></div>
+          }
+        </article>
+      }
+    </div>
+    <details class="criterios"><summary>Criterios y limitaciones de los resultados</summary><ul>@for (c of d.criterios; track c) {<li>{{ c }}</li>}</ul></details>
+  }
+  @if (puedeCapturar()) {
+    <section class="gestion"><h2>Gestionar datos del vendedor seleccionado</h2><p>Las metas y capturas pueden registrarse aunque la consulta a SAP no esté disponible.</p>
+      <div class="formularios">
+        <form (ngSubmit)="guardarClientes()"><h3>Nuevos clientes del día</h3><fieldset [disabled]="guardando()"><label>Fecha<input type="date" name="fecha" [(ngModel)]="fecha" min="2000-01-01" [max]="hoy" (change)="cargarClientes()" required></label>
+          <label>Total del día<input type="number" name="cantidad" [(ngModel)]="cantidad" min="0" max="1000000" step="1" [disabled]="!clientesListos()" required></label>
+          <p>{{ cargandoClientes() ? 'Cargando cantidad registrada...' : 'Guardar reemplaza el total de esa fecha. No se suma a la cantidad anterior.' }}</p><p>Se registran cantidades declaradas; no se verifica si los clientes son únicos.</p>
+          <button type="submit" [disabled]="!clientesListos()">Guardar total diario</button><button class="secundario" type="button" (click)="cargarClientes()" [disabled]="cargandoClientes()">Consultar de nuevo</button></fieldset></form>
+        <form (ngSubmit)="guardarMeta()"><h3>{{ nivel >= 3 ? 'Meta mensual individual' : 'Consultar metas mensuales' }}</h3><fieldset [disabled]="guardando()"><label>Mes de la meta<input type="month" name="periodoMeta" [(ngModel)]="periodoMeta" min="2000-01" max="2100-12" (change)="cargarMetas()" required></label>
+          @if (nivel >= 3) {<label>Meta de ventas con IVA<input type="text" name="meta" inputmode="decimal" [(ngModel)]="meta" placeholder="Ingresa el monto aprobado" [disabled]="!metaLista()" required></label>}
+          <p>El acumulado requiere las metas de todos los meses desde enero. No se generan metas automáticas.</p>
+          @if (cargandoMetas()) {<p role="status">Cargando metas...</p>}
+          @if (metaLista() && !metas().length) {<p>No hay metas registradas hasta este mes.</p>}
+          <ul>@for (m of metas(); track m.periodoMes) {<li>Mes {{ m.periodoMes }}: {{ m.metaObjetivo }}</li>}</ul>
+          @if (nivel >= 3) {<button type="submit" [disabled]="!metaLista()">Guardar meta</button>}<button class="secundario" type="button" (click)="cargarMetas()" [disabled]="cargandoMetas()">Consultar metas</button></fieldset></form>
+      </div>
+    </section>
+  } @else if (nivel >= 2 && vista === 'equipo') { <p class="vacio">Selecciona un vendedor para consultar sus metas o registrar nuevos clientes.</p> }
+</section>
