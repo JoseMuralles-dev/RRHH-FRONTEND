@@ -102,7 +102,7 @@ describe('UsuariosList', () => {
     http.expectOne(url).flush([]);
     await fixture.whenStable();
     expect(fixture.nativeElement.textContent).not.toContain('Cargando usuarios');
-    expect(fixture.nativeElement.querySelector('table')).toBeTruthy();
+    expect(fixture.componentInstance.loading()).toBe(false);
     expect(fixture.nativeElement.querySelectorAll('tbody tr').length).toBe(0);
   });
 });

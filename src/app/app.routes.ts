@@ -18,8 +18,11 @@ export const routes: Routes = [
   {
     path: '',
     component: MainLayoutComponent,
+    canActivate: [authGuard],
 
     children: [
+      { path: 'ia', loadComponent: () => import('./features/ia/asistente-ia').then(m => m.AsistenteIa) },
+      { path: 'mi-perfil', loadComponent: () => import('./features/mi-perfil/mi-perfil').then(m => m.MiPerfil) },
       { path: 'expedientes', canActivate: [authGuard], loadChildren: () => import('./features/expedientes/expedientes.routes').then(m => m.EXPEDIENTES_ROUTES) },
       {
         path: 'vacaciones/saldos',

@@ -1,3 +1,4 @@
+import { API as TEST_API } from '../../../../core/config/apis';
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
@@ -25,11 +26,11 @@ describe('EmpleadoForm', () => {
     const navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
     const fixture = TestBed.createComponent(EmpleadoForm);
     fixture.detectChanges();
-    http.expectOne('http://localhost:3000/empleados/select').flush([
+    http.expectOne((TEST_API.baseUrl + '/empleados/select')).flush([
       { idEmpleado: 7, nombreCompleto: 'Ana Pérez' }, { idEmpleado: 2, nombreCompleto: 'Luis López' },
     ]);
-    http.expectOne('http://localhost:3000/puestos').flush([{ idPuesto: 1, nombrePuesto: 'Analista', isActive: true, departamento: { nombreDepartamento: 'Recursos Humanos', isActive: true } }]);
-    if (id) http.expectOne(`http://localhost:3000/empleados/${id}`).flush(empleado);
+    http.expectOne((TEST_API.baseUrl + '/puestos')).flush([{ idPuesto: 1, nombrePuesto: 'Analista', isActive: true, departamento: { nombreDepartamento: 'Recursos Humanos', isActive: true } }]);
+    if (id) http.expectOne(`${TEST_API.baseUrl}/empleados/${id}`).flush(empleado);
     fixture.detectChanges();
     return { fixture, component: fixture.componentInstance, navigate };
   }
@@ -40,7 +41,7 @@ describe('EmpleadoForm', () => {
     component.form.patchValue({ ...empleado, segundoNombre: '', segundoApellido: '', telefono: '55551234', direccion: '' });
     component.guardar();
     component.guardar();
-    const req = http.expectOne('http://localhost:3000/empleados');
+    const req = http.expectOne((TEST_API.baseUrl + '/empleados'));
     expect(req.request.method).toBe('POST');
     expect(req.request.body.dpi).toBe('0012345678901');
     expect(req.request.body.igss).toBe('00123');
@@ -66,7 +67,7 @@ describe('EmpleadoForm', () => {
     expect(component.error()).toContain('No hay cambios');
     component.form.patchValue({ telefono: '55559876', idJefeDirecto: null, codigoSapEmpleado: null });
     component.guardar();
-    const req = http.expectOne('http://localhost:3000/empleados/7');
+    const req = http.expectOne((TEST_API.baseUrl + '/empleados/7'));
     expect(req.request.method).toBe('PATCH');
     expect(req.request.body).toEqual({ telefono: '55559876', idJefeDirecto: null, codigoSapEmpleado: null });
     req.flush(empleado);
@@ -86,7 +87,7 @@ describe('EmpleadoForm', () => {
     const { component } = setup();
     component.form.patchValue({ ...empleado, segundoNombre: '', segundoApellido: '', telefono: '55551234', direccion: '' });
     component.guardar();
-    http.expectOne('http://localhost:3000/empleados').flush({ message: ['DPI duplicado', 'IGSS duplicado'] },
+    http.expectOne((TEST_API.baseUrl + '/empleados')).flush({ message: ['DPI duplicado', 'IGSS duplicado'] },
       { status: 409, statusText: 'Conflict' });
     expect(component.error()).toBe('DPI duplicado\nIGSS duplicado');
     expect(component.saving()).toBe(false);

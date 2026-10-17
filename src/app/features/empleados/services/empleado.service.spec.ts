@@ -1,3 +1,4 @@
+import { API as TEST_API } from '../../../core/config/apis';
 import { TestBed } from '@angular/core/testing';
 import { HttpErrorResponse, provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
@@ -17,11 +18,11 @@ describe('EmpleadoService', () => {
 
   it('uses list, detail, selector and encoded search endpoints', () => {
     service.listar().subscribe();
-    http.expectOne('http://localhost:3000/empleados').flush([]);
+    http.expectOne((TEST_API.baseUrl + '/empleados')).flush([]);
     service.obtener(7).subscribe();
-    http.expectOne('http://localhost:3000/empleados/7').flush({ idEmpleado: 7 });
+    http.expectOne((TEST_API.baseUrl + '/empleados/7')).flush({ idEmpleado: 7 });
     service.select().subscribe();
-    http.expectOne('http://localhost:3000/empleados/select').flush([]);
+    http.expectOne((TEST_API.baseUrl + '/empleados/select')).flush([]);
     service.buscar('  Pérez López  ').subscribe();
     const search = http.expectOne(req => req.url.endsWith('/buscar'));
     expect(search.request.params.get('texto')).toBe('Pérez López');
@@ -30,7 +31,7 @@ describe('EmpleadoService', () => {
 
   it('deactivates without a body', () => {
     service.desactivar(7).subscribe();
-    const req = http.expectOne('http://localhost:3000/empleados/7/desactivar');
+    const req = http.expectOne((TEST_API.baseUrl + '/empleados/7/desactivar'));
     expect(req.request.method).toBe('PATCH');
     expect(req.request.body).toBeNull();
     req.flush(null);
@@ -40,7 +41,7 @@ describe('EmpleadoService', () => {
     const logout = vi.spyOn(TestBed.inject(AuthService), 'logout');
     const navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
     service.listar().subscribe({ error: () => {} });
-    http.expectOne('http://localhost:3000/empleados').flush({}, { status: 401, statusText: 'Unauthorized' });
+    http.expectOne((TEST_API.baseUrl + '/empleados')).flush({}, { status: 401, statusText: 'Unauthorized' });
     expect(logout).toHaveBeenCalled();
     expect(navigate).toHaveBeenCalledWith(['/login']);
   });

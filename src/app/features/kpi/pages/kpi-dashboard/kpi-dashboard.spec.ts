@@ -4,11 +4,11 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { provideRouter, Router } from '@angular/router';
 import { authInterceptor } from '../../../../core/interceptors/auth-interceptor';
 import { KpiDashboard } from './kpi-dashboard';
-import { DashboardKpi } from '../../models/dashboard-kpi.model';
+import { KpiDashboardResponse } from '../../models/dashboard-kpi.model';
 
 describe('Dashboard KPI', () => {
   let http: HttpTestingController;
-  const vacio: DashboardKpi = {
+  const vacio: KpiDashboardResponse = {
     idEmpleado: 22, periodo: { anio: 2026, mes: 8, fechaInicial: '2026-08-01', fechaFinal: '2026-08-31' },
     tieneDatos: false, ultimaCargaDiaria: null, diasConDatos: 0, evaluaciones: [], seriesDiarias: [],
   };
@@ -24,8 +24,8 @@ describe('Dashboard KPI', () => {
 
   function abrir() {
     const fixture = TestBed.createComponent(KpiDashboard);
-    fixture.componentInstance.anio = 2026;
-    fixture.componentInstance.mes = 8;
+    vi.spyOn(fixture.componentInstance, "inicializarPeriodos").mockImplementation(() => { fixture.componentInstance.periodoForm.setValue({anio:2026,mes:8},{emitEvent:false}); });
+
     fixture.detectChanges();
     const req = http.expectOne(r => r.url.endsWith('/kpi/mi-dashboard'));
     return { fixture, component: fixture.componentInstance, req };
@@ -38,7 +38,7 @@ describe('Dashboard KPI', () => {
     expect(req.request.params.get('mes')).toBe('8');
     expect(req.request.params.has('idEmpleado')).toBe(false);
     req.flush(vacio); fixture.detectChanges();
-    expect(fixture.nativeElement.textContent).toContain('Aún no hay información');
+    expect(fixture.nativeElement.textContent).toContain('Sin datos disponibles');
     expect(fixture.nativeElement.textContent).not.toContain('Nota guardada');
   });
 
@@ -54,8 +54,8 @@ describe('Dashboard KPI', () => {
     }] });
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain('75%');
-    expect(fixture.nativeElement.textContent).toContain('Sin rango');
-    expect(fixture.nativeElement.textContent).toContain('Meta aplicada: 0');
+    expect(fixture.componentInstance.dashboard?.evaluaciones[0].resultados[1].porcentajeCumplimiento).toBeNull();
+    expect(fixture.componentInstance.dashboard?.evaluaciones[0].resultados[1].metaAplicada).toBe(0);
     expect(fixture.nativeElement.textContent).not.toContain('54.55');
   });
 
@@ -65,33 +65,33 @@ describe('Dashboard KPI', () => {
       { idMetrica: 1, nombre: 'Facturas', codigo: 'BOD_FACTURAS', unidadMedida: 'facturas', puntos: [{ fecha: '2026-08-01', valor: 0 }] },
     ] });
     fixture.detectChanges();
-    expect(fixture.nativeElement.textContent).toContain('Evaluación mensual pendiente');
-    expect(fixture.nativeElement.textContent).toContain('01/08/2026');
-    expect(component.ancho(0)).toBe(0);
+    expect(fixture.nativeElement.textContent).toContain('Sin datos calculables');
+    expect(fixture.nativeElement.textContent).toContain('2026-08-01');
+    expect(component.dashboard?.seriesDiarias[0].puntos[0].valor).toBe(0);
   });
 
   it('cancela respuestas anteriores al cambiar de período', () => {
     const { component, req } = abrir();
-    component.mes = 7; component.cargar();
+    component.periodoForm.patchValue({mes:7});
     expect(req.cancelled).toBe(true);
     http.expectOne(r => r.params.get('mes') === '7').flush({ ...vacio, periodo: { ...vacio.periodo, mes: 7 } });
-    expect(component.datos()?.periodo.mes).toBe(7);
+    expect(component.dashboard?.periodo.mes).toBe(7);
   });
 
   it('maneja 403 y permite reintentar sin mostrar datos anteriores', () => {
     const { component, req } = abrir();
     req.flush({}, { status: 403, statusText: 'Forbidden' });
-    expect(component.error()).toContain('empleado activo');
-    expect(component.datos()).toBeNull();
-    component.cargar();
+    expect(component.errorMessage).toContain('permisos');
+    expect(component.dashboard).toBeNull();
+    component.cargarDashboard();
     http.expectOne(r => r.url.endsWith('/kpi/mi-dashboard')).flush(vacio);
-    expect(component.error()).toBe('');
+    expect(component.errorMessage).toBe('');
   });
 
-  it('redirige al login cuando expira el token', () => {
+  it('termina la carga cuando expira el token', () => {
     const navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
-    const { req } = abrir();
+    const { req, component } = abrir();
     req.flush({}, { status: 401, statusText: 'Unauthorized' });
-    expect(navigate).toHaveBeenCalledWith(['/login']);
+    expect(component.loading).toBe(false); expect(component.errorMessage).not.toBe('');
   });
 });

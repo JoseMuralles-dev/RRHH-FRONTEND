@@ -1,3 +1,4 @@
+import { API as TEST_API } from '../../../../core/config/apis';
 ﻿import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router, ActivatedRoute, convertToParamMap } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
@@ -14,7 +15,7 @@ describe('Actualizar vacaciones', () => {
       { provide: ActivatedRoute, useValue: { snapshot: { paramMap: convertToParamMap({ id: '7' }) } } },
       { provide: AuthService, useValue: { getUsuarioSesion: () => ({ idUsuario: 1, idEmpleado: 10, nivelJerarquico: 1 }) } }] });
     http = TestBed.inject(HttpTestingController); const f = TestBed.createComponent(ActualizarSolicitud);
-    http.expectOne('http://localhost:3000/solicitudes/7').flush({ ...data, estado }); f.detectChanges(); return f;
+    http.expectOne((TEST_API.baseUrl + '/solicitudes/7')).flush({ ...data, estado }); f.detectChanges(); return f;
   }
   afterEach(() => http.verify());
   it('bloquea vacaciones cerradas', () => { const f = abrir('CANCELADA'); expect(f.componentInstance.solicitud()).toBeNull(); expect(f.nativeElement.textContent).toContain('Solo puedes editar'); });
@@ -22,7 +23,7 @@ describe('Actualizar vacaciones', () => {
     const f = abrir(); await f.whenStable(); expect(f.nativeElement.querySelector('#inicio').value).toBe('2026-10-05');
     const nav = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
     f.componentInstance.guardar({ idTipoIncidencia: 99, motivo: 'Cambio', fechaInicio: '2026-10-05', fechaFin: '2026-10-08', diasSolicitados: 4 });
-    const req = http.expectOne('http://localhost:3000/solicitudes/7'); expect(req.request.method).toBe('PATCH'); expect(req.request.body.idTipoIncidencia).toBe(1);
+    const req = http.expectOne((TEST_API.baseUrl + '/solicitudes/7')); expect(req.request.method).toBe('PATCH'); expect(req.request.body.idTipoIncidencia).toBe(1);
     req.flush(data); expect(nav).toHaveBeenCalledWith(['/solicitudes', 7]);
   });
 });

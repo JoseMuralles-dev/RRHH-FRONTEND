@@ -11,6 +11,7 @@ import {
 } from './pages/kpi-equipo/kpi-equipo';
 
 export const KPI_ROUTES: Routes = [
+  { path: 'ventas', loadComponent: () => import('./pages/ventas/ventas').then(m => m.Ventas) },
   { path: 'cinco-s', canActivate: [cincoSGuard], canDeactivate: [(component: { saving(): boolean; form: { dirty: boolean } }) => !component.saving() && (!component.form.dirty || window.confirm('Hay una inspección sin guardar. ¿Salir sin guardar?'))], loadComponent: () => import('./pages/cinco-s/cinco-s').then(m => m.CincoS) },
 
   {

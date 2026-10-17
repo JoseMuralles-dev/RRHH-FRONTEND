@@ -56,7 +56,7 @@ La subida envía únicamente `archivo`, `idTipoDocumento` y las fechas/observaci
 2. Iniciar sesión con un usuario RRHH o administrador. Abrir **Expedientes digitales** desde el menú lateral.
 3. Buscar un empleado y pulsar **Ver expediente**.
 4. Si no tiene expediente activo, elegir fecha de apertura, agregar observaciones opcionales y pulsar **Crear expediente**. Un expediente inactivo previo puede producir conflicto; no se crea automáticamente otro.
-5. Pulsar **+ Subir documento**. Seleccionar un tipo del catálogo y un PDF/JPG/PNG de hasta 10 MB. Completar vencimiento si el tipo lo exige.
+5. Pulsar **+ Subir documento**. Seleccionar un tipo del catálogo y un PDF/JPG/PNG de hasta 100 MB. Completar vencimiento si el tipo lo exige.
 6. Pulsar **Guardar documento** una sola vez. Al responder el POST correctamente se vuelve al empleado y se consulta de nuevo el expediente: el documento aparece en su tarjeta.
 7. Comprobar los filtros y la lista de tipos obligatorios. Los indicadores son exclusivamente visuales.
 
