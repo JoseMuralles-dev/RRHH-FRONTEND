@@ -1,3 +1,4 @@
+import { API as TEST_API } from '../../../../core/config/apis';
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
@@ -15,18 +16,18 @@ describe('CrearSolicitud', () => {
   afterEach(() => { http.verify(); vi.restoreAllMocks(); });
   it('loads the catalog, blocks duplicate saves and opens the created detail', () => {
     const fixture = TestBed.createComponent(CrearSolicitud); fixture.detectChanges();
-    http.expectOne('http://localhost:3000/solicitudes/tipos-incidencia').flush([{ idTipoIncidencia: 1, nombre: 'Permiso', requierePeriodo: true }]);
+    http.expectOne((TEST_API.baseUrl + '/solicitudes/tipos-incidencia')).flush([{ idTipoIncidencia: 1, nombre: 'Permiso', requierePeriodo: true }]);
     const navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
     const data = { idTipoIncidencia: 1, fechaInicio: '2026-09-18', fechaFin: '2026-09-21', diasSolicitados: 2, motivo: 'Motivo' };
     fixture.componentInstance.guardar(data); fixture.componentInstance.guardar(data);
-    const req = http.expectOne('http://localhost:3000/solicitudes');
+    const req = http.expectOne((TEST_API.baseUrl + '/solicitudes'));
     expect(req.request.method).toBe('POST'); expect(req.request.body).toEqual(data);
     req.flush({ idSolicitud: 7 });
     expect(navigate).toHaveBeenCalledWith(['/solicitudes', 7]);
   });
   it('shows catalog errors rather than an empty list', () => {
     const fixture = TestBed.createComponent(CrearSolicitud); fixture.detectChanges();
-    http.expectOne('http://localhost:3000/solicitudes/tipos-incidencia').error(new ProgressEvent('error'));
+    http.expectOne((TEST_API.baseUrl + '/solicitudes/tipos-incidencia')).error(new ProgressEvent('error'));
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain('No se pudo conectar');
     expect(fixture.nativeElement.querySelector('app-solicitud-form')).toBeNull();

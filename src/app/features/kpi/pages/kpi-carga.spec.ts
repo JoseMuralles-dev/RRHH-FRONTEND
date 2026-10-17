@@ -1,3 +1,6 @@
+import { provideRouter } from '@angular/router';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideZonelessChangeDetection, Type } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Subject } from 'rxjs';
@@ -22,7 +25,7 @@ for (const caso of [
       const consultar = () => { const respuesta = new Subject<any>(); respuestas.push(respuesta); return respuesta.asObservable(); };
       TestBed.configureTestingModule({
         imports: [caso.componente],
-        providers: [provideZonelessChangeDetection(), { provide: KpiService, useValue: { [caso.metodo]: consultar } }],
+        providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting(),provideZonelessChangeDetection(), { provide: KpiService, useValue: { [caso.metodo]: consultar } }],
       });
     });
     it('actualiza el DOM al recibir datos sin clic ni detectChanges manual', async () => {

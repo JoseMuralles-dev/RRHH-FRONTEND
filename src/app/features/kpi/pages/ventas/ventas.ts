@@ -1,3 +1,4 @@
+import { referenciaVentas } from './ventas.service';
 import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -6,6 +7,7 @@ import { AuthService } from '../../../../core/services/auth';
 import { DashboardVentas, MetaVentas, ResultadoVentas, Vendedor, VentasApi, errorVentas } from './ventas.service';
 @Component({selector:'app-ventas', imports:[FormsModule], templateUrl:'./ventas.html', styleUrl:'./ventas.css'})
 export class Ventas {
+  readonly referencia = referenciaVentas;
   private readonly api = inject(VentasApi);
   private readonly destroy = inject(DestroyRef);
   readonly usuario = inject(AuthService).getUsuarioSesion();
@@ -25,7 +27,7 @@ export class Ventas {
   periodoMeta = this.periodo; meta = ''; fecha = this.hoy; cantidad: number|null = null;
   private consulta?: Subscription; private consultaMetas?: Subscription; private consultaClientes?: Subscription;
   readonly nombres: Record<string,string> = { VEN_META_MENSUAL:'Meta mensual', VEN_META_ACUMULADA:'Meta acumulada', VEN_NUEVOS_CLIENTES:'Nuevos clientes', VEN_NOTAS_CREDITO:'Notas de credito', VEN_CARTERA_SANA:'Cartera menor a 60 dias' };
-  readonly estados: Record<string,string> = { OK:'Completo', COMPLETA:'Completa', INCOMPLETA:'Evaluacion incompleta', SIN_META:'Sin meta configurada', META_INCOMPLETA:'Faltan metas mensuales', REGLA_PENDIENTE:'Regla pendiente de aprobacion', SIN_DENOMINADOR:'Porcentaje no calculable', CODIGO_SAP_INVALIDO:'Codigo SAP ausente o invalido', CONFLICTO_CODIGO_SAP:'Codigo SAP duplicado', SIN_CORRESPONDENCIA:'Vendedor sin correspondencia en SAP', CONFLICTO_REGISTROS_DIARIOS:'Registros diarios duplicados', CERRADA_SIN_SNAPSHOT:'Evaluacion cerrada sin detalle historico' };
+  readonly estados: Record<string,string> = { SIN_ACTUALIZAR:'Sin carga registrada', REVISION_NC_NEGATIVAS:'Notas de credito negativas: requiere revision', REVISION_CARTERA_NEGATIVA:'Cartera negativa: requiere revision', OK:'Completo', COMPLETA:'Completa', INCOMPLETA:'Evaluacion incompleta', SIN_META:'Sin meta configurada', META_INCOMPLETA:'Faltan metas mensuales', REGLA_PENDIENTE:'Regla pendiente de aprobacion', SIN_DENOMINADOR:'Porcentaje no calculable', CODIGO_SAP_INVALIDO:'Codigo SAP ausente o invalido', CONFLICTO_CODIGO_SAP:'Codigo SAP duplicado', SIN_CORRESPONDENCIA:'Vendedor sin correspondencia en SAP', CONFLICTO_REGISTROS_DIARIOS:'Registros diarios duplicados', CERRADA_SIN_SNAPSHOT:'Evaluacion cerrada sin detalle historico' };
   constructor() { this.catalogo(); this.cargar(); }
   estado(s: string) { return this.estados[s] ?? s; }
   periodoValido(p: string) { return /^20\d{2}-(0[1-9]|1[0-2])$/.test(p) || /^2100-(0[1-9]|1[0-2])$/.test(p); }
@@ -63,14 +65,14 @@ export class Ventas {
     if (!/^\d{1,12}(\.\d{1,2})?$/.test(this.meta) || Number(this.meta)<=0) { this.errorFormulario.set('Ingresa una meta positiva con hasta dos decimales.'); return; }
     this.guardando.set(true); this.errorFormulario.set(''); this.aviso.set('');
     this.api.guardarMeta(this.seleccionado(),this.periodoMeta,this.meta).pipe(takeUntilDestroyed(this.destroy),finalize(()=>this.guardando.set(false)))
-      .subscribe({next:()=>{this.guardando.set(false);this.aviso.set('Meta guardada. El acumulado usa las metas de enero al mes evaluado.');this.cargarMetas();this.cargar();},error:e=>this.errorFormulario.set(errorVentas(e))});
+      .subscribe({next:()=>{this.guardando.set(false);this.aviso.set('Meta guardada. Se reflejara en la proxima carga diaria. El acumulado usa las metas de enero al mes evaluado.');this.cargarMetas();this.cargar();},error:e=>this.errorFormulario.set(errorVentas(e))});
   }
   guardarClientes() {
     if (!this.puedeCapturar() || this.guardando() || !this.clientesListos()) return;
     if (this.cantidad===null || !Number.isInteger(this.cantidad) || this.cantidad<0 || this.cantidad>1000000) {this.errorFormulario.set('Ingresa una cantidad entera entre 0 y 1000000.');return;}
     this.guardando.set(true); this.errorFormulario.set(''); this.aviso.set('');
     this.api.guardarClientes(this.seleccionado(),this.fecha,this.cantidad).pipe(takeUntilDestroyed(this.destroy),finalize(()=>this.guardando.set(false)))
-      .subscribe({next:()=>{this.guardando.set(false);this.aviso.set('Total diario guardado. Reemplaza la cantidad anterior, no se suma nuevamente.');this.cargar();},error:e=>this.errorFormulario.set(errorVentas(e))});
+      .subscribe({next:()=>{this.guardando.set(false);this.aviso.set('Total diario guardado. Se reflejara en la proxima carga diaria. Reemplaza la cantidad anterior, no se suma nuevamente.');this.cargar();},error:e=>this.errorFormulario.set(errorVentas(e))});
   }
   guardarEvaluacion(e: ResultadoVentas) {
     if (this.nivel<2 || this.vista!=='equipo' || this.guardando() || e.cerrado || e.notaFinal===null) return;

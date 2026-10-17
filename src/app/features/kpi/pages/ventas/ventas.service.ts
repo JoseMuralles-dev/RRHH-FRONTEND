@@ -2,8 +2,8 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { API } from '../../../../core/config/apis';
 export interface Vendedor { idEmpleado: number; nombre: string; }
-export interface IndicadorVentas { codigo: string; pesoPorcentaje: number; valorObtenido: string | null; metaAplicada: string | null; estado: string; puntos: string | null; mesesFaltantes: number[]; explicacion?: string | null; }
-export interface ResultadoVentas extends Vendedor { estado: string; notaFinal: string | null; cerrado?: boolean; provisional?: boolean; resultados: IndicadorVentas[]; }
+export interface IndicadorVentas { reglaAplicada?: { configuracion?: { base?: string | number } }; codigo: string; pesoPorcentaje: number; valorObtenido: string | null; metaAplicada: string | null; estado: string; puntos: string | null; mesesFaltantes: number[]; explicacion?: string | null; }
+export interface ResultadoVentas extends Vendedor { estado: string; notaFinal: string | null; fechaCorte?: string; actualizadoEn?: string; desactualizado?: boolean; cerrado?: boolean; provisional?: boolean; resultados: IndicadorVentas[]; }
 export interface DashboardVentas { periodo: { anio: number; mes: number; fechaInicio: string; fechaFin: string; provisional: boolean }; criterios: string[]; empleados: ResultadoVentas[]; }
 export interface MetaVentas { periodoMes: number; metaObjetivo: string; }
 export function errorVentas(e: unknown): string {
@@ -28,4 +28,10 @@ export class VentasApi {
   clientes(idEmpleado: number, fecha: string) { return this.http.get<{cantidad:number|null}>(this.base+'/nuevos-clientes',{params:{idEmpleado,fecha}}); }
   guardarClientes(idEmpleado: number, fecha: string, cantidad: number) { return this.http.put(this.base+'/nuevos-clientes',{idEmpleado,fecha,cantidad}); }
   evaluar(idEmpleado: number, periodo: string) { const [anio,mes] = periodo.split('-').map(Number); return this.http.post<DashboardVentas & {guardado:boolean}>(this.base+'/evaluaciones',{idEmpleado,anio,mes}); }
+}
+
+export function referenciaVentas(r: IndicadorVentas): string {
+  const valor = r.metaAplicada ?? (r.codigo === 'VEN_CARTERA_SANA' ? r.reglaAplicada?.configuracion?.base : null);
+  if (valor == null) return '?';
+  return String(valor) + (['VEN_CARTERA_SANA', 'VEN_NOTAS_CREDITO'].includes(r.codigo) ? '%' : '');
 }

@@ -1,3 +1,4 @@
+import { referenciaVentas } from './ventas.service';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
@@ -54,5 +55,13 @@ describe('KPI Ventas frontend',()=>{
     await abrir();http.expectOne(r=>r.url===base+'/equipo').flush({...respuesta,empleados:[pendiente,{...pendiente,idEmpleado:22,nombre:'Otro vendedor'}]});
     c.elegir(21);http.expectOne(r=>r.url===base+'/metas').flush([]);http.expectOne(r=>r.url===base+'/nuevos-clientes').flush({cantidad:0});await fixture.whenStable();
     expect(fixture.nativeElement.querySelectorAll('article').length).toBe(1);expect(c.visibles()[0].idEmpleado).toBe(21);
+  });
+});
+
+describe('Referencia de cartera', () => {
+  it('usa la regla historica cuando el avance guardado no tenia metaAplicada', () => {
+    expect(referenciaVentas({codigo:'VEN_CARTERA_SANA',metaAplicada:null,reglaAplicada:{configuracion:{base:'100'}}} as any)).toBe('100%');
+    expect(referenciaVentas({codigo:'VEN_CARTERA_SANA',metaAplicada:'90',reglaAplicada:{configuracion:{base:'100'}}} as any)).toBe('90%');
+    expect(referenciaVentas({codigo:'VEN_CARTERA_SANA',metaAplicada:null} as any)).toBe('?');
   });
 });
