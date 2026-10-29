@@ -197,3 +197,7 @@ fieldset { min-width: 0; }
 body:has(dialog.mobile-menu[open]) { overflow: hidden; }
 .table-container > table, .table-scroll > table, .tabla > table { min-width: 640px; }
 .series-table > table { min-width: 360px; }
+
+/* Font Awesome: iconos decorativos junto al texto. */
+.app-icon { display: inline-block; width: 1.25em; text-align: center; margin-inline-end: .4em; flex-shrink: 0; }
+@media (prefers-reduced-motion: reduce) { .fa-spin, .fa-pulse { animation: none !important; } }

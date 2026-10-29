@@ -1,4 +1,4 @@
-﻿<section class="page-container"><header class="page-header"><div><span class="eyebrow">RECURSOS HUMANOS</span><h1>Expedientes digitales</h1><p>Consulta y organiza la documentación de cada empleado.</p></div><button type="button" [disabled]="loading()" (click)="cargar()">Actualizar</button></header>
+<section class="page-container"><header class="page-header"><div><span class="eyebrow">RECURSOS HUMANOS</span><h1>Expedientes digitales</h1><p>Consulta y organiza la documentación de cada empleado.</p></div><button type="button" [disabled]="loading()" (click)="cargar()">Actualizar</button></header>
   @if (administrar) {
     <form class="search" (ngSubmit)="buscar()"><label>Buscar empleado<input type="search" [formControl]="busqueda" placeholder="Nombre o número de empleado"></label><button class="btn-primary" type="submit">Buscar</button></form>
   }
@@ -9,6 +9,6 @@
       @for (empleado of visibles(); track empleado.idEmpleado) { <article class="card"><span class="eyebrow">EMPLEADO #{{ empleado.idEmpleado }}</span><h2>{{ empleado.nombreCompleto }}</h2><p class="badge" aria-live="polite">{{ estados()[empleado.idEmpleado] || 'Consultando expediente…' }}</p><div class="actions"><a class="btn-primary" [routerLink]="['/expedientes/empleado', empleado.idEmpleado]">Ver expediente</a></div></article> }
       @empty { <p class="empty">No hay empleados que coincidan con la búsqueda.</p> }
     </div>
-    @if (filtrados().length > 12) { <nav class="pagination" aria-label="Páginas de empleados"><button [disabled]="pagina() === 1" (click)="paginar(-1)">Anterior</button><span>Página {{ pagina() }}</span><button [disabled]="pagina() * 12 >= filtrados().length" (click)="paginar(1)">Siguiente</button></nav> }
+    @if (filtrados().length > 12) { <nav class="pagination" aria-label="Páginas de empleados"><button type="button" aria-label="Página anterior" title="Página anterior" [disabled]="pagina() === 1" (click)="paginar(-1)"><i class="fa-solid fa-angles-left" aria-hidden="true"></i></button><span>Página {{ pagina() }}</span><button type="button" aria-label="Página siguiente" title="Página siguiente" [disabled]="pagina() * 12 >= filtrados().length" (click)="paginar(1)"><i class="fa-solid fa-angles-right" aria-hidden="true"></i></button></nav> }
   }
 </section>

@@ -1,4 +1,4 @@
-﻿<section class="page-container"><header class="page-header"><div><span class="eyebrow">EXPEDIENTE #{{ idExpediente }}</span><h1>Subir documento</h1><p>Adjunta documentación al expediente del empleado #{{ idEmpleado }}.</p></div><a [routerLink]="idEmpleado > 0 ? ['/expedientes/empleado', idEmpleado] : ['/expedientes']">Volver al expediente</a></header>
+<section class="page-container"><header class="page-header"><div><span class="eyebrow">EXPEDIENTE #{{ idExpediente }}</span><h1>Subir documento</h1><p>Adjunta documentación al expediente del empleado #{{ idEmpleado }}.</p></div><a [routerLink]="idEmpleado > 0 ? ['/expedientes/empleado', idEmpleado] : ['/expedientes']">Volver al expediente</a></header>
   @if (loading()) { <p class="empty" role="status">Preparando formulario…</p> }
   @if (error()) { <p class="error-box" role="alert">{{ error() }} @if (!verificado()) { <button type="button" [disabled]="saving() || loading()" (click)="cargar()">Reintentar</button> }</p> }
   @if (success()) { <p class="success" role="status">{{ success() }}</p> }
@@ -10,6 +10,6 @@
       <div><label for="fecha-documento">Fecha del documento</label><input id="fecha-documento" type="date" formControlName="fechaDocumento"></div>
       <div><label for="fecha-vencimiento">Fecha de vencimiento {{ requiereVencimiento() ? '*' : '' }}</label><input id="fecha-vencimiento" type="date" formControlName="fechaVencimiento" [attr.aria-required]="requiereVencimiento()">@if (form.controls.fechaVencimiento.touched && form.controls.fechaVencimiento.invalid) { <p class="field-error">Este tipo requiere fecha de vencimiento.</p> }</div>
       <div class="wide"><label for="observaciones">Observaciones</label><textarea id="observaciones" rows="4" formControlName="observaciones" maxlength="5000"></textarea><p class="hint">Hasta 5000 caracteres.</p></div>
-    </div><div class="actions"><button class="btn-primary" type="submit" [disabled]="saving()">{{ saving() ? 'Subiendo documento…' : 'Guardar documento' }}</button></div></fieldset></form> }
+    </div><div class="actions"><button class="btn-primary" type="submit" [disabled]="saving()"><i class="fa-solid fa-upload app-icon" aria-hidden="true"></i> {{ saving() ? 'Subiendo documento…' : 'Guardar documento' }}</button></div></fieldset></form> }
   }
 </section>
