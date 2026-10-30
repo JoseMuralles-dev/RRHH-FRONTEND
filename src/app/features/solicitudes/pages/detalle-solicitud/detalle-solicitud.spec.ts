@@ -1,3 +1,4 @@
+import { API as TEST_API } from '../../../../core/config/apis';
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
@@ -19,7 +20,7 @@ describe('DetalleSolicitud', () => {
       { provide: AuthService, useValue: { getUsuarioSesion: () => ({ idUsuario, idEmpleado, nivelJerarquico: 2 }) } }] });
     http = TestBed.inject(HttpTestingController);
     const fixture = TestBed.createComponent(DetalleSolicitud); fixture.detectChanges();
-    http.expectOne('http://localhost:3000/solicitudes/7').flush({ ...solicitud, estado });
+    http.expectOne((TEST_API.baseUrl + '/solicitudes/7')).flush({ ...solicitud, estado });
     fixture.detectChanges(); return fixture;
   }
   afterEach(() => { http.verify(); vi.restoreAllMocks(); });
@@ -30,9 +31,9 @@ describe('DetalleSolicitud', () => {
     expect(component.error()).toContain('motivo del rechazo');
     component.comentario.setValue(' No procede ');
     component.resolver('rechazar'); component.resolver('rechazar');
-    const req = http.expectOne('http://localhost:3000/solicitudes/7/rechazar');
+    const req = http.expectOne((TEST_API.baseUrl + '/solicitudes/7/rechazar'));
     expect(req.request.body).toEqual({ comentario: 'No procede' }); req.flush({});
-    http.expectOne('http://localhost:3000/solicitudes/7').flush({ ...solicitud, estado: 'RECHAZADA' });
+    http.expectOne((TEST_API.baseUrl + '/solicitudes/7')).flush({ ...solicitud, estado: 'RECHAZADA' });
     expect(component.puedeResolver()).toBe(false);
   });
   it('hides RRHH approval until its turn', () => {
@@ -48,8 +49,8 @@ describe('DetalleSolicitud', () => {
     const fixture = setup(10, 10); const confirm = vi.spyOn(window, 'confirm').mockReturnValue(false);
     fixture.componentInstance.resolver('cancelar'); http.expectNone(req => req.method === 'PATCH');
     confirm.mockReturnValue(true); fixture.componentInstance.resolver('cancelar');
-    const req = http.expectOne('http://localhost:3000/solicitudes/7/cancelar'); expect(req.request.body).toBeNull(); req.flush({});
-    http.expectOne('http://localhost:3000/solicitudes/7').flush({ ...solicitud, estado: 'CANCELADA' });
+    const req = http.expectOne((TEST_API.baseUrl + '/solicitudes/7/cancelar')); expect(req.request.body).toBeNull(); req.flush({});
+    http.expectOne((TEST_API.baseUrl + '/solicitudes/7')).flush({ ...solicitud, estado: 'CANCELADA' });
     expect(fixture.componentInstance.puedeCancelar()).toBe(false);
   });
 });

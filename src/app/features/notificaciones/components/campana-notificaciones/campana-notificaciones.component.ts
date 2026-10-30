@@ -115,6 +115,10 @@ export class CampanaNotificacionesComponent implements OnInit, OnDestroy {
 
   private navegar(notificacion: Notificacion): void {
     this.abierto = false;
+    if (notificacion.referenciaTipo === 'IA_INFORME' && notificacion.referenciaId) {
+      void this.router.navigate(['/ia'], { queryParams: { informe: notificacion.referenciaId } });
+      return;
+    }
     if (notificacion.referenciaTipo === 'SOLICITUD_INCIDENCIA' && notificacion.referenciaId) {
       void this.router.navigate(['/solicitudes', notificacion.referenciaId]);
     }

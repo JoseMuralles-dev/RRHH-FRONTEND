@@ -10,6 +10,16 @@ import { API } from '../../../core/config/apis';
 import { CampanaNotificacionesComponent } from '../components/campana-notificaciones/campana-notificaciones.component';
 
 describe('Notificaciones', () => {
+  it('abre el informe IA desde una notificación', () => {
+    const navigate = vi.fn();
+    const component = new CampanaNotificacionesComponent(
+      {} as NotificacionesService, { navigate } as unknown as Router,
+      { markForCheck: vi.fn() } as unknown as ChangeDetectorRef,
+    );
+    component.seleccionar({ idNotificacion: 1, leida: true, referenciaTipo: 'IA_INFORME', referenciaId: 12 } as any);
+    expect(navigate).toHaveBeenCalledWith(['/ia'], { queryParams: { informe: 12 } });
+    component.ngOnDestroy();
+  });
   afterEach(() => { vi.useRealTimers(); TestBed.resetTestingModule(); });
   it('envia las cuatro operaciones al backend configurado', () => {
     TestBed.configureTestingModule({ providers: [provideHttpClient(), provideHttpClientTesting()] });

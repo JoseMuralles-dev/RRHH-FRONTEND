@@ -1,0 +1,68 @@
+<main class="ia-page">
+  <header class="heading">
+    <div><span class="eyebrow">RECURSOS HUMANOS</span><h1>Asistente KPI</h1>
+      <p>Consulta tus indicadores y revisa los puntos clave de tus informes.</p></div>
+    <span class="badge">Análisis para revisión humana</span>
+  </header>
+  <div class="ia-grid">
+    <section class="panel consulta" aria-labelledby="consulta-titulo">
+      <h2 id="consulta-titulo">Haz una consulta</h2>
+      <p class="muted">Cada pregunta se analiza de forma independiente, según tus permisos. Incluye el empleado o KPI que deseas consultar.</p>
+      <form (ngSubmit)="enviar()" #form="ngForm">
+        <fieldset [disabled]="enviando()">
+          <legend class="sr-only">Período y pregunta</legend>
+          <div class="periodo">
+            <label>Mes<select name="mes" [(ngModel)]="mes" required>
+              @for (nombre of meses; track $index) { <option [ngValue]="$index + 1">{{ nombre }}</option> }
+            </select></label>
+            <label>Año<input name="anio" type="number" [(ngModel)]="anio" min="2000" max="2100" required></label>
+          </div>
+          <div class="sugerencias" aria-label="Preguntas sugeridas">
+            @for (texto of sugerencias; track texto) { <button type="button" class="sugerencia" (click)="sugerir(texto)">{{ texto }}</button> }
+          </div>
+          <label for="pregunta">Tu pregunta</label>
+          <textarea id="pregunta" name="pregunta" [(ngModel)]="pregunta" minlength="3" maxlength="1500" required rows="4"
+            placeholder="Por ejemplo: explica las variaciones de mis KPI este mes"></textarea>
+          <div class="acciones"><small>{{ pregunta.length }}/1500</small>
+            <button class="primary" type="submit" [disabled]="form.invalid || pregunta.trim().length < 3">Consultar IA</button>
+          </div>
+        </fieldset>
+      </form>
+      @if (enviando()) { <p role="status" class="status">Analizando los datos autorizados… Puede tardar hasta dos minutos.</p> }
+      @if (error()) { <p role="alert" class="error">{{ error() }}</p> }
+      @if (cargandoInforme()) { <p role="status">Cargando informe…</p> }
+      @if (informe(); as item) {
+        <article class="respuesta" aria-labelledby="respuesta-titulo" aria-live="polite">
+          <div class="respuesta-header"><h2 id="respuesta-titulo">{{ item.origen === 'AUTOMATICO' ? 'Informe automático' : 'Respuesta del asistente' }}</h2>
+            <span>{{ meses[item.mes - 1] }} {{ item.anio }}</span></div>
+          <p class="pregunta-original">{{ item.pregunta }}</p>
+          <div class="texto-respuesta">{{ item.respuesta }}</div>
+          @if (item.puntosClave?.length) {
+            <h3>Puntos clave del análisis</h3><ul>@for (punto of item.puntosClave; track $index) { <li>{{ punto }}</li> }</ul>
+          }
+          @if (item.recomendaciones?.length) {
+            <h3>Recomendaciones para revisión</h3><ul>@for (punto of item.recomendaciones; track $index) { <li>{{ punto }}</li> }</ul>
+          }
+          @if (item.fuentes?.length) { <p class="muted">Fuentes declaradas por el asistente: {{ item.fuentes!.join(', ') }}</p> }
+          <footer>Generado {{ item.createdAt | date:'dd/MM/yyyy HH:mm' }}. Verifica los hallazgos con los indicadores del sistema antes de actuar.</footer>
+        </article>
+      }
+      <p class="limites">La IA explica y recomienda; las decisiones de personal corresponden a las personas responsables. Si no hay datos suficientes, el análisis debe indicarlo.</p>
+    </section>
+    <aside class="panel historial" aria-labelledby="historial-titulo">
+      <div class="historial-header"><h2 id="historial-titulo">Mis informes</h2><button type="button" class="link-button" (click)="cargarHistorial()" [disabled]="cargandoHistorial()">Actualizar</button></div>
+      <p class="muted">Consultas recientes y avisos automáticos de KPI. La campana te permite abrir cada aviso.</p>
+      @if (cargandoHistorial()) { <p role="status">Cargando historial…</p> }
+      @if (errorHistorial()) { <p role="alert" class="error">{{ errorHistorial() }}</p> }
+      @for (item of historial(); track item.idInforme) {
+        <button type="button" class="historial-item" [class.seleccionado]="informe()?.idInforme === item.idInforme"
+          [disabled]="enviando()" (click)="seleccionar(item.idInforme)">
+          <span class="tipo">{{ item.origen === 'AUTOMATICO' ? 'Informe automático' : 'Consulta' }} · {{ item.mes }}/{{ item.anio }}</span>
+          <strong>{{ item.pregunta }}</strong><small>{{ item.createdAt | date:'dd/MM/yyyy HH:mm' }}</small>
+        </button>
+      } @empty {
+        @if (!cargandoHistorial() && !errorHistorial()) { <p class="vacio">Tus primeros análisis aparecerán aquí.</p> }
+      }
+    </aside>
+  </div>
+</main>

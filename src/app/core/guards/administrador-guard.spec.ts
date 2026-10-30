@@ -16,7 +16,7 @@ describe('Menú y acceso administrativo', () => {
     fixture.detectChanges();
     const el = fixture.nativeElement as HTMLElement;
     expect(!!el.querySelector('a[href="/usuarios"]')).toBe(nivel === 4);
-    expect(!!el.querySelector('a[href="/usuarios/nuevo"]')).toBe(nivel === 4);
+    expect(el.querySelector('a[href="/usuarios/nuevo"]')).toBeNull();
     expect(!!el.querySelector('a[href="/empleados"]')).toBe(nivel >= 3);
   });
   it.each([1, 2, 3])('bloquea la ruta de usuarios al nivel %i', valor => {

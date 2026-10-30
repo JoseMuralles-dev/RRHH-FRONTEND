@@ -1,3 +1,4 @@
+import { API as TEST_API } from '../../core/config/apis';
 ﻿import { TestBed } from '@angular/core/testing';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
@@ -47,7 +48,7 @@ describe('Pantalla de vacaciones', () => {
     const { component, req } = abrir();
     req.flush(respuesta);
     component.cambiarVista('proximas');
-    const next = http.expectOne('http://localhost:3000/vacaciones/proximas');
+    const next = http.expectOne((TEST_API.baseUrl + '/vacaciones/proximas'));
     next.flush([registro]);
     expect(component.visibles()).toEqual([registro]);
   });
@@ -56,14 +57,14 @@ describe('Pantalla de vacaciones', () => {
     req.flush(respuesta);
     component.anio = 2025;
     component.cambiarVista('historial');
-    http.expectOne('http://localhost:3000/vacaciones/historial?anio=2025').flush({ anio: 2025, solicitudes: [] });
+    http.expectOne((TEST_API.baseUrl + '/vacaciones/historial?anio=2025')).flush({ anio: 2025, solicitudes: [] });
     expect(component.visibles()).toEqual([]);
   });
   it('cancela la consulta anterior al cambiar de vista', () => {
     const { component, req } = abrir();
     component.cambiarVista('proximas');
     expect(req.cancelled).toBe(true);
-    http.expectOne('http://localhost:3000/vacaciones/proximas').flush([]);
+    http.expectOne((TEST_API.baseUrl + '/vacaciones/proximas')).flush([]);
     expect(component.cargando()).toBe(false);
   });
   it('presenta el error de empleado y permite reintentar', () => {

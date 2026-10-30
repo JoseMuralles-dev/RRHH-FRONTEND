@@ -1,3 +1,6 @@
+import { provideRouter } from '@angular/router';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { KpiEquipo } from './kpi-equipo';
@@ -8,7 +11,7 @@ describe('KpiEquipo', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [KpiEquipo],
+      imports: [KpiEquipo], providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(KpiEquipo);

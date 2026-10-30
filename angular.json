@@ -26,6 +26,10 @@
               }
             ],
             "styles": [
+              "node_modules/@fortawesome/fontawesome-free/css/fontawesome.min.css",
+              "node_modules/@fortawesome/fontawesome-free/css/solid.min.css",
+              "node_modules/@fortawesome/fontawesome-free/css/regular.min.css",
+              "node_modules/@fortawesome/fontawesome-free/css/brands.min.css",
               "src/styles.css"
             ]
           },
@@ -66,7 +70,12 @@
           "defaultConfiguration": "development"
         },
         "test": {
-          "builder": "@angular/build:unit-test"
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "setupFiles": [
+              "src/test-setup.ts"
+            ]
+          }
         }
       }
     }

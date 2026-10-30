@@ -1,6 +1,6 @@
 ﻿import { DocumentoExpediente } from '../models/expediente.model';
 export type Vencimiento = 'VIGENTE' | 'PROXIMO' | 'VENCIDO' | 'SIN_FECHA' | 'FECHA_INVALIDA';
-export const MAX_ARCHIVO_BYTES = 10 * 1024 * 1024;
+export const MAX_ARCHIVO_BYTES = 100 * 1024 * 1024;
 export function hoyGuatemala(fecha = new Date()): string {
   const partes = new Intl.DateTimeFormat('en', { timeZone: 'America/Guatemala', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(fecha);
   const parte = (tipo: string) => partes.find(p => p.type === tipo)!.value;
@@ -29,7 +29,7 @@ export function tamanoArchivo(valor: string | number | null): string {
 export function validarArchivo(file: File): string {
   if (!['application/pdf', 'image/jpeg', 'image/png'].includes(file.type) || !/\.(pdf|jpe?g|png)$/i.test(file.name)) return 'Selecciona un PDF, JPG, JPEG o PNG con un tipo MIME válido.';
   if (!file.size) return 'El archivo está vacío.';
-  return file.size > MAX_ARCHIVO_BYTES ? 'El archivo no puede superar 10 MB.' : '';
+  return file.size > MAX_ARCHIVO_BYTES ? 'El archivo no puede superar 100 MB.' : '';
 }
 export function guardarBlob(blob: Blob, nombre: string): void {
   const url = URL.createObjectURL(blob);

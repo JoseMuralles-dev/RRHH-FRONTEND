@@ -5,7 +5,7 @@
   <dialog #mobileMenu id="mobile-navigation" class="mobile-menu" aria-label="Menú principal"
     (cancel)="closeMenu()" (click)="$event.target === mobileMenu && closeMenu()">
     <div class="menu-panel">
-      <button type="button" class="menu-close" (click)="closeMenu()" autofocus>Cerrar menú ✕</button>
+      <button type="button" class="menu-close" (click)="closeMenu()" autofocus aria-label="Cerrar menú" title="Cerrar menú"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
       <app-sidebar (navigate)="closeMenu()"></app-sidebar>
     </div>
   </dialog>

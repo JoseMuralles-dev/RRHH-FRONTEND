@@ -1,3 +1,4 @@
+import { API as TEST_API } from '../../../core/config/apis';
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
@@ -44,7 +45,7 @@ describe('Acceso y detalle de empleados', () => {
     token(2);
     const fixture = TestBed.createComponent(EmpleadoDetalle);
     fixture.detectChanges();
-    TestBed.inject(HttpTestingController).expectOne('http://localhost:3000/empleados/7').flush({
+    TestBed.inject(HttpTestingController).expectOne((TEST_API.baseUrl + '/empleados/7')).flush({
       idEmpleado: 7, idPuesto: 1, primerNombre: 'Ana', primerApellido: 'Pérez',
       dpi: '0012345678901', igss: '00123', fechaNacimiento: '1995-05-20',
       fechaIngreso: '2026-09-01', sueldoActual: '4500.00', puesto: null, jefeDirecto: null, usuario: null,
@@ -59,7 +60,7 @@ describe('Acceso y detalle de empleados', () => {
   it('shows a 404 instead of an empty detail', () => {
     const fixture = TestBed.createComponent(EmpleadoDetalle);
     fixture.detectChanges();
-    TestBed.inject(HttpTestingController).expectOne('http://localhost:3000/empleados/7')
+    TestBed.inject(HttpTestingController).expectOne((TEST_API.baseUrl + '/empleados/7'))
       .flush({ message: 'Empleado no encontrado' }, { status: 404, statusText: 'Not Found' });
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain('Empleado no encontrado');

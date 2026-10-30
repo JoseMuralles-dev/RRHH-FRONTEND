@@ -52,3 +52,10 @@ nav a.active {
 nav a:focus-visible { outline-color: var(--focus-ring-border); }
 nav a { min-height: 44px; display: flex; align-items: center; }
 @media (max-width: 1024px) { .sidebar { width: 100%; min-height: 0; padding: 20px 16px; } .logo { margin-bottom: 20px; } }
+
+.sidebar { display: flex; flex-direction: column; min-height: 100dvh; }
+.sidebar-footer { margin-top: auto; padding-top: 24px; display: flex; justify-content: center; }
+.logout-button { width: 100%; min-height: 44px; padding: 10px 16px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--sidebar-muted); border-radius: 8px; background: transparent; color: var(--text-inverse); font-size: var(--text-sm); font-weight: 600; cursor: pointer; }
+.logout-button:hover { background: var(--sidebar-hover); }
+.logout-button:focus-visible { outline: 2px solid var(--focus-ring-border); outline-offset: 3px; }
+@media (max-width: 1024px) { .sidebar { min-height: calc(100dvh - 56px); } }

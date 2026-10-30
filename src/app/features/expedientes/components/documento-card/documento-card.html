@@ -1,4 +1,4 @@
-﻿<article class="card">
+<article class="card">
   <header class="page-header"><div><span class="eyebrow">{{ documento().mimeType === 'application/pdf' ? 'PDF' : documento().mimeType?.startsWith('image/') ? 'IMAGEN' : 'ARCHIVO' }}</span><h3>{{ documento().tipoDocumento?.nombre || ('Tipo #' + documento().idTipoDocumento) }}</h3></div>
     <span class="badge" [class.vencido]="vencimiento(documento()) === 'VENCIDO'" [class.proximo]="vencimiento(documento()) === 'PROXIMO'" [class.vigente]="vencimiento(documento()) === 'VIGENTE'">{{ etiqueta[vencimiento(documento())] }}</span>
   </header>

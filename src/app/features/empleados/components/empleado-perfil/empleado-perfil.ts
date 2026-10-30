@@ -11,6 +11,7 @@ import { Empleado, nombreCompleto } from '../../models/empleado.model';
 })
 export class EmpleadoPerfil {
   readonly empleado = input.required<Empleado>();
+  readonly propio = input(false);
   readonly puedeEditar = input(false);
   readonly desactivando = input(false);
   readonly desactivar = output<Empleado>();

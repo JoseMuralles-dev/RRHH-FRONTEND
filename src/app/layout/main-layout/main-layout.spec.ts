@@ -26,7 +26,7 @@ describe('Navegación móvil', () => {
     dialog.close = () => dialog.removeAttribute('open');
   });
 
-  afterEach(() => TestBed.inject(HttpTestingController).verify());
+  afterEach(() => { const http=TestBed.inject(HttpTestingController); http.match(r=>r.url.endsWith('/notificaciones/no-leidas/count')).forEach(r=>r.flush({noLeidas:0})); http.verify(); });
 
   it('abre desde el navbar y actualiza aria-expanded', () => {
     expect(dialog.open).toBe(false);

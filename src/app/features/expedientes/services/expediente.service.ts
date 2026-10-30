@@ -11,7 +11,7 @@ export function errorExpediente(error: unknown): string {
   if (error.status === 0) return 'No se pudo conectar con el servidor. Revisa la conexión.';
   if (error.status === 401) return 'Tu sesión venció. Inicia sesión nuevamente.';
   if (error.status === 403) return 'No tienes permiso para realizar esta acción.';
-  if (error.status === 413) return 'El archivo supera el tamaño permitido de 10 MB.';
+  if (error.status === 413) return 'El archivo supera el tamaño permitido de 100 MB.';
   const message: unknown = error.error?.message;
   if (Array.isArray(message)) return message.filter((m): m is string => typeof m === 'string').join('\n');
   if (typeof message === 'string' && !message.startsWith('Cannot ')) return message;

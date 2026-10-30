@@ -1,7 +1,6 @@
 
 export const API = {
   baseUrl: 'https://5358p146-3000.use.devtunnels.ms',
-
   auth: {
     login: '/auth/login'
   },

@@ -119,8 +119,8 @@ export class ExpedienteDetalle {
     const archivo = input.files?.[0];
     this.reemplazo.set(undefined); this.error.set('');
     if (!archivo) return;
-    if (!['application/pdf', 'image/jpeg', 'image/png'].includes(archivo.type) || !archivo.size || archivo.size > 10 * 1024 * 1024) {
-      input.value = ''; this.error.set('Selecciona un PDF, JPG o PNG de hasta 10 MB.'); return;
+    if (!['application/pdf', 'image/jpeg', 'image/png'].includes(archivo.type) || !archivo.size || archivo.size > 100 * 1024 * 1024) {
+      input.value = ''; this.error.set('Selecciona un PDF, JPG o PNG de hasta 100 MB.'); return;
     }
     this.reemplazo.set(archivo);
   }
